@@ -28,8 +28,10 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
+RUN npx prisma migrate deploy
+
 EXPOSE 3000
 
-CMD npx prisma migrate deploy && node dist/src/main.js
+CMD node dist/src/main.js
 
 
