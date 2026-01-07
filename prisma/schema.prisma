@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Unit {
+  G
+  ML
+  PCS
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+enum Goal {
+  LOSE_WEIGHT
+  GAIN_WEIGHT
+  MAINTAIN
+  SAVE_BUDGET
+  HEALTHY
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String?
+
+  family   Family? @relation(fields: [familyId], references: [id])
+  familyId String?
+  role     Role    @default(OWNER)
+
+  preferences UserPreference?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserPreference {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  weight Float?
+  height Float?
+  age    Int?
+  goal   Goal   @default(MAINTAIN)
+
+  allergies        String[]
+  dislikedProducts String[]
+
+  eatsBreakfast Boolean @default(true)
+  eatsLunch     Boolean @default(true)
+  eatsDinner    Boolean @default(true)
+  eatsSnack     Boolean @default(false)
+}
+
+model Family {
+  id          String   @id @default(uuid())
+  name        String
+  budgetLimit Decimal?
+  members     User[]
+
+  inventory    InventoryItem[]
+  shoppingList ShoppingListItem[]
+  mealPlans    MealPlan[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id             String  @id @default(uuid())
+  name           String  @unique
+  category       String?
+  baseUnit       Unit
+  caloriesPer100 Float?
+
+  standardAmount Float?
+
+  inventoryItems    InventoryItem[]
+  shoppingItems     ShoppingListItem[]
+  recipeIngredients RecipeIngredient[]
+}
+
+model InventoryItem {
+  id       String @id @default(uuid())
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity   Float
+  expiryDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recipe {
+  id           String @id @default(uuid())
+  name         String
+  instructions String
+
+  ingredients RecipeIngredient[]
+  mealPlans   MealPlan[]
+}
+
+model RecipeIngredient {
+  id       String @id @default(uuid())
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  amount Float
+}
+
+model MealPlan {
+  id       String @id @default(uuid())
+  family   Family @relation(fields: [familyId], references: [id])
+  familyId String
+
+  date DateTime
+
+  type MealType
+
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String
+}
+
+model ShoppingListItem {
+  id       String @id @default(uuid())
+  family   Family @relation(fields: [familyId], references: [id])
+  familyId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity Float
+  isBought Boolean @default(false)
+
+  manualNote String?
+}
