@@ -188,6 +188,10 @@ export class AuthService {
     };
   }
 
+  public async checkIfExistingUser(email: string) {
+    return !!(await this.prisma.user.findUnique({ where: { email } }));
+  }
+
   private async generateToken(userId: string, email: string, familyId: string) {
     const payload = { sub: userId, email, familyId };
     return {
