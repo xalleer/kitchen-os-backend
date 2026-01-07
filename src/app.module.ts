@@ -7,9 +7,30 @@ import { FamilyModule } from './family/family.module';
 import { ProductsModule } from './products/products.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, UsersModule, FamilyModule, ProductsModule, InventoryModule, PrismaModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    FamilyModule,
+    ProductsModule,
+    InventoryModule,
+    PrismaModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '7d' },
+      }),
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
