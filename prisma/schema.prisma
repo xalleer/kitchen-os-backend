@@ -12,11 +12,6 @@ enum Unit {
   PCS
 }
 
-enum Role {
-  OWNER
-  MEMBER
-}
-
 enum Goal {
   LOSE_WEIGHT
   GAIN_WEIGHT
@@ -32,6 +27,12 @@ enum MealType {
   SNACK
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  UNSPECIFIED
+}
+
 model User {
   id       String  @id @default(uuid())
   email    String  @unique
@@ -40,12 +41,12 @@ model User {
 
   family   Family? @relation(fields: [familyId], references: [id])
   familyId String?
-  role     Role    @default(OWNER)
 
-  preferences UserPreference?
+  memberProfile FamilyMember?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  UserPreference UserPreference?
 }
 
 model UserPreference {
@@ -58,8 +59,7 @@ model UserPreference {
   age    Int?
   goal   Goal   @default(MAINTAIN)
 
-  allergies        String[]
-  dislikedProducts String[]
+  allergies String[]
 
   eatsBreakfast Boolean @default(true)
   eatsLunch     Boolean @default(true)
@@ -70,8 +70,10 @@ model UserPreference {
 model Family {
   id          String   @id @default(uuid())
   name        String
-  budgetLimit Decimal?
-  members     User[]
+  budgetLimit Decimal? @default(0)
+
+  users   User[]
+  members FamilyMember[]
 
   inventory    InventoryItem[]
   shoppingList ShoppingListItem[]
@@ -79,6 +81,34 @@ model Family {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model FamilyMember {
+  id   String @id @default(uuid())
+  name String
+
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @unique
+
+  gender Gender @default(UNSPECIFIED)
+  weight Float?
+  height Float?
+  age    Int?
+  goal   Goal   @default(MAINTAIN)
+
+  allergies Allergy[]
+
+  eatsBreakfast Boolean @default(true)
+  eatsLunch     Boolean @default(true)
+  eatsDinner    Boolean @default(true)
+  eatsSnack     Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 }
 
 model Product {
@@ -93,6 +123,8 @@ model Product {
   inventoryItems    InventoryItem[]
   shoppingItems     ShoppingListItem[]
   recipeIngredients RecipeIngredient[]
+  FamilyMember      FamilyMember?      @relation(fields: [familyMemberId], references: [id])
+  familyMemberId    String?
 }
 
 model InventoryItem {
@@ -155,4 +187,12 @@ model ShoppingListItem {
   isBought Boolean @default(false)
 
   manualNote String?
+}
+
+model Allergy {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  members FamilyMember[]
 }

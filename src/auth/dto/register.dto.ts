@@ -1,68 +1,70 @@
 import {
-  IsEmail,
-  IsNotEmpty,
   IsString,
-  MinLength,
+  IsNotEmpty,
+  IsOptional,
   IsNumber,
   IsEnum,
-  IsOptional,
+  IsBoolean,
+  ValidateNested,
   IsArray,
-  IsBoolean
+  IsEmail,
 } from 'class-validator';
-import { Goal } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { Goal, Gender } from '@prisma/client';
+
+class BaseMemberSettingsDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  allergyIds?: string[];
+
+
+  @IsOptional() @IsBoolean() eatsBreakfast?: boolean;
+  @IsOptional() @IsBoolean() eatsLunch?: boolean;
+  @IsOptional() @IsBoolean() eatsDinner?: boolean;
+  @IsOptional() @IsBoolean() eatsSnack?: boolean;
+}
+
+export class OwnerProfileDto extends BaseMemberSettingsDto {
+  @IsOptional() @IsNumber() age?: number;
+  @IsOptional() @IsNumber() weight?: number;
+  @IsOptional() @IsNumber() height?: number;
+  @IsOptional() @IsEnum(Goal) goal?: Goal;
+}
+
+export class FamilyMemberDto extends BaseMemberSettingsDto {}
 
 export class RegisterDto {
-  @IsEmail({}, { message: 'Incorrect email' })
-  @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @IsNotEmpty()
   password: string;
 
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsNumber()
   @IsOptional()
-  age?: number;
-
   @IsNumber()
-  @IsNotEmpty({ message: 'Weight is required' })
-  weight: number;
+  budgetLimit?: number;
 
-  @IsNumber()
-  @IsNotEmpty({ message: 'Height is required' })
-  height: number;
+  @ValidateNested()
+  @Type(() => OwnerProfileDto)
+  ownerProfile: OwnerProfileDto;
 
-  @IsEnum(Goal, { message: 'Invalid goal selected' })
-  @IsNotEmpty()
-  goal: Goal;
-
+  @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  allergies?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  dislikedProducts?: string[];
-
-  @IsBoolean()
-  @IsOptional()
-  eatsBreakfast?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  eatsLunch?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  eatsDinner?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  eatsSnack?: boolean;
+  @ValidateNested({ each: true })
+  @Type(() => FamilyMemberDto)
+  familyMembers?: FamilyMemberDto[];
 }
