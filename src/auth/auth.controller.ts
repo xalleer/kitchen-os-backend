@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +29,17 @@ export class AuthController {
   @Post('google-login')
   async googleLogin(@Body() dto: GoogleLoginDto) {
     return this.authService.loginWithGoogle(dto.token);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }

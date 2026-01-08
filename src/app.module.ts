@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DictionariesModule } from './dictionaries/dictionaries.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DictionariesModule } from './dictionaries/dictionaries.module';
       }),
     }),
     DictionariesModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

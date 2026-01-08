@@ -3,10 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { OwnerProfileDto, RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { LoginDto } from './dto/login.dto';
 import { OAuth2Client } from 'google-auth-library';
 import {ConfigService} from '@nestjs/config';
 import { Gender, Goal } from '@prisma/client';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +17,8 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private mailService: MailService
   ) {
     const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     this.googleClient = new OAuth2Client(googleClientId);
@@ -186,6 +190,64 @@ export class AuthService {
         connect: memberDto.allergyIds?.map((id) => ({ id })) || [],
       },
     };
+  }
+
+  public async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user || !user.password) return;
+
+    const code = crypto.randomInt(100000, 999999).toString();
+
+    const salt = await bcrypt.genSalt(10);
+    const codeHash = await bcrypt.hash(code, salt);
+
+    const expiration = new Date(Date.now() + 15 * 60 * 1000);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetCodeHash: codeHash,
+        passwordResetExpires: expiration,
+      },
+    });
+
+    await this.mailService.sendResetPasswordEmail(user.email, code);
+  }
+
+  public async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (
+      !user ||
+      !user.passwordResetCodeHash ||
+      !user.passwordResetExpires ||
+      user.passwordResetExpires < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired code');
+    }
+
+    const isCodeValid = await bcrypt.compare(dto.code, user.passwordResetCodeHash);
+
+    if (!isCodeValid) {
+      throw new BadRequestException('Invalid code');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, salt);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: newPasswordHash,
+        passwordResetCodeHash: null,
+        passwordResetExpires: null,
+      },
+    });
   }
 
   public async checkIfExistingUser(email: string) {
