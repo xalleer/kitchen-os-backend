@@ -59,7 +59,7 @@ export class UpdateUserPreferencesDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  allergies?: string[];
+  allergyIds?: string[];
 
   @IsOptional()
   @IsBoolean()

@@ -59,7 +59,17 @@ export class UsersService {
             },
           },
         },
-        UserPreference: true,
+        UserPreference: {
+          include: {
+            allergies: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              }
+            },
+          }
+        },
       },
     });
 
@@ -134,16 +144,36 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    const { allergyIds, ...restData } = dto
+
     if (user.UserPreference) {
       return await this.prisma.userPreference.update({
         where: { userId },
-        data: dto,
+        data: {
+          ...restData,
+          allergies: allergyIds
+            ? { set: allergyIds.map((id) => ({ id })) }
+            : undefined,
+        },
+        include: {
+          allergies: {
+            select: { id: true, name: true, slug: true },
+          },
+        },
       });
     } else {
       return await this.prisma.userPreference.create({
         data: {
           userId,
-          ...dto,
+          ...restData,
+          allergies: {
+            connect: allergyIds?.map((id) => ({ id })) || [],
+          },
+        },
+        include: {
+          allergies: {
+            select: { id: true, name: true, slug: true },
+          },
         },
       });
     }

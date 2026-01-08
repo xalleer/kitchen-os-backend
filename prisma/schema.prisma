@@ -62,7 +62,7 @@ model UserPreference {
   age    Int?
   goal   Goal   @default(MAINTAIN)
 
-  allergies String[]
+  allergies Allergy[]
 
   eatsBreakfast Boolean @default(true)
   eatsLunch     Boolean @default(true)
@@ -197,5 +197,6 @@ model Allergy {
   name String @unique
   slug String @unique
 
-  members FamilyMember[]
+  members         FamilyMember[]
+  userPreferences UserPreference[]
 }
