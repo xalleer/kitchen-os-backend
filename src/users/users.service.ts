@@ -144,10 +144,11 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const { allergyIds, ...restData } = dto
+    const { allergyIds, ...restData } = dto;
+    let updatedPreferences;
 
     if (user.UserPreference) {
-      return await this.prisma.userPreference.update({
+      updatedPreferences = await this.prisma.userPreference.update({
         where: { userId },
         data: {
           ...restData,
@@ -156,13 +157,11 @@ export class UsersService {
             : undefined,
         },
         include: {
-          allergies: {
-            select: { id: true, name: true, slug: true },
-          },
+          allergies: { select: { id: true, name: true, slug: true } },
         },
       });
     } else {
-      return await this.prisma.userPreference.create({
+      updatedPreferences = await this.prisma.userPreference.create({
         data: {
           userId,
           ...restData,
@@ -171,12 +170,35 @@ export class UsersService {
           },
         },
         include: {
-          allergies: {
-            select: { id: true, name: true, slug: true },
-          },
+          allergies: { select: { id: true, name: true, slug: true } },
         },
       });
     }
+
+    const familyMember = await this.prisma.familyMember.findUnique({
+      where: { userId: userId },
+    });
+
+    if (familyMember) {
+      await this.prisma.familyMember.update({
+        where: { id: familyMember.id },
+        data: {
+          weight: dto.weight,
+          height: dto.height,
+          age: dto.age,
+          goal: dto.goal,
+          eatsBreakfast: dto.eatsBreakfast,
+          eatsLunch: dto.eatsLunch,
+          eatsDinner: dto.eatsDinner,
+          eatsSnack: dto.eatsSnack,
+          allergies: allergyIds
+            ? { set: allergyIds.map((id) => ({ id })) }
+            : undefined,
+        },
+      });
+    }
+
+    return updatedPreferences;
   }
 
 
