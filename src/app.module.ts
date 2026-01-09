@@ -9,6 +9,8 @@ import { InventoryModule } from './inventory/inventory.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DictionariesModule } from './dictionaries/dictionaries.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: '7d' },
       }),
     }),
+    DictionariesModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
