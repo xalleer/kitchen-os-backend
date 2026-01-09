@@ -11,6 +11,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DictionariesModule } from './dictionaries/dictionaries.module';
 import { MailModule } from './mail/mail.module';
+import { RecipesModule } from './recipes/recipes.module';
+import { AiModule } from './ai/ai.module';
+import { MealPlanModule } from './meal-plan/meal-plan.module';
 
 @Module({
   imports: [
@@ -33,7 +36,10 @@ import { MailModule } from './mail/mail.module';
       }),
     }),
     DictionariesModule,
-    MailModule
+    MailModule,
+    RecipesModule,
+    AiModule,
+    MealPlanModule
   ],
   controllers: [AppController],
   providers: [AppService],
