@@ -21,6 +21,8 @@ export class InventoryService {
             category: true,
             baseUnit: true,
             caloriesPer100: true,
+            image: true
+
           },
         },
       },
@@ -321,7 +323,6 @@ export class InventoryService {
             name: true,
             category: true,
             baseUnit: true,
-            image: true
           },
         },
       },
