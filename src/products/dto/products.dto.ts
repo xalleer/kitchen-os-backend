@@ -24,6 +24,10 @@ export class CreateProductDto {
   baseUnit: Unit;
 
   @IsOptional()
+  @IsString()
+  image?: string;
+
+  @IsOptional()
   @IsNumber()
   @Min(0)
   caloriesPer100?: number;

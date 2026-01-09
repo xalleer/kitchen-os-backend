@@ -115,12 +115,12 @@ model FamilyMember {
 }
 
 model Product {
-  id             String  @id @default(uuid())
-  name           String  @unique
-  category       String?
-  baseUnit       Unit
-  caloriesPer100 Float?
-
+  id                String             @id @default(uuid())
+  name              String             @unique
+  category          String?
+  baseUnit          Unit
+  caloriesPer100    Float?
+  image             String?
   standardAmount    Float?
   inventoryItems    InventoryItem[]
   shoppingItems     ShoppingListItem[]

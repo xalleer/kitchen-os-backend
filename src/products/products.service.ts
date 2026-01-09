@@ -73,6 +73,7 @@ export class ProductsService {
           baseUnit: true,
           caloriesPer100: true,
           standardAmount: true,
+          image: true
         },
       }),
       this.prisma.product.count({ where }),
@@ -100,6 +101,7 @@ export class ProductsService {
         caloriesPer100: true,
         standardAmount: true,
         familyMemberId: true,
+        image: true
       },
     });
 
