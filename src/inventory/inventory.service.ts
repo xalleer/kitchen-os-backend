@@ -321,6 +321,7 @@ export class InventoryService {
             name: true,
             category: true,
             baseUnit: true,
+            image: true
           },
         },
       },
