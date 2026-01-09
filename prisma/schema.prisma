@@ -121,8 +121,7 @@ model Product {
   baseUnit       Unit
   caloriesPer100 Float?
 
-  standardAmount Float?
-
+  standardAmount    Float?
   inventoryItems    InventoryItem[]
   shoppingItems     ShoppingListItem[]
   recipeIngredients RecipeIngredient[]
