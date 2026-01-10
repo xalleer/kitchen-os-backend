@@ -4,7 +4,6 @@ import { AiService } from '../ai/ai.service';
 import { InventoryService } from '../inventory/inventory.service';
 import {
   GenerateRecipeDto,
-  GenerateRecipeByNamesDto,
   GenerateCustomRecipeDto,
   SaveRecipeDto,
   CookRecipeDto,
@@ -197,28 +196,6 @@ export class RecipesService {
       ),
     ];
 
-    const prompt = `Створи рецепт для страви "${dto.dishName}".
-Кількість порцій: ${dto.portions || 2}.
-${allAllergies.length > 0 ? `Обмеження/алергії: ${allAllergies.join(', ')}.` : ''}
-
-Відповідь надай ТІЛЬКИ у форматі JSON:
-{
-  "name": "назва страви українською",
-  "description": "короткий опис",
-  "instructions": ["крок 1", "крок 2", ...],
-  "cookingTime": хвилин,
-  "servings": порцій,
-  "calories": калорій_на_порцію,
-  "ingredients": [
-    {
-      "productName": "назва продукту",
-      "amount": число,
-      "unit": "г/мл/шт"
-    }
-  ],
-  "category": "категорія"
-}`;
-
     const aiRecipe = await this.aiService.generateRecipe({
       productNames: [dto.dishName],
       portions: dto.portions,
@@ -326,11 +303,13 @@ ${allAllergies.length > 0 ? `Обмеження/алергії: ${allAllergies.j
     };
   }
 
+  // ===== FIXED DELETE METHOD =====
   async deleteRecipe(recipeId: string) {
     const recipe = await this.prisma.recipe.findUnique({
       where: { id: recipeId },
       include: {
         mealPlans: true,
+        ingredients: true,
       },
     });
 
@@ -344,13 +323,22 @@ ${allAllergies.length > 0 ? `Обмеження/алергії: ${allAllergies.j
       );
     }
 
-    await this.prisma.recipe.delete({
-      where: { id: recipeId },
-    });
+    // Використовуємо транзакцію для правильного видалення
+    await this.prisma.$transaction([
+      // Спочатку видаляємо всі інгредієнти
+      this.prisma.recipeIngredient.deleteMany({
+        where: { recipeId },
+      }),
+      // Потім видаляємо сам рецепт
+      this.prisma.recipe.delete({
+        where: { id: recipeId },
+      }),
+    ]);
 
     return { message: 'Recipe deleted successfully' };
   }
 
+  // ===== FIXED EXPIRING PRODUCTS =====
   async getExpiringProductsRecipes(familyId: string) {
     const expiringItems = await this.inventoryService.getExpiringProducts(
       familyId,
@@ -358,14 +346,58 @@ ${allAllergies.length > 0 ? `Обмеження/алергії: ${allAllergies.j
     );
 
     if (expiringItems.length === 0) {
-      return { message: 'No expiring products', recipes: [] };
+      return {
+        expiringProducts: [],
+        suggestedRecipe: null
+      };
     }
 
     const productNames = expiringItems.map((item) => item.product.name);
 
-    const recipe = await this.aiService.suggestRecipeForExpiringProducts(
+    const familyMembers = await this.prisma.familyMember.findMany({
+      where: { familyId },
+      include: {
+        allergies: { select: { name: true } },
+      },
+    });
+
+    const allAllergies = [
+      ...new Set(
+        familyMembers.flatMap((member) =>
+          member.allergies.map((a) => a.name),
+        ),
+      ),
+    ];
+
+    const aiRecipe = await this.aiService.generateRecipe({
       productNames,
+      portions: 2,
+      dietaryRestrictions: allAllergies,
+    });
+
+    // Отримуємо всі продукти з БД для маппінгу
+    const allProducts = await this.prisma.product.findMany({
+      where: {
+        name: {
+          in: aiRecipe.ingredients.map(ing => ing.productName)
+        }
+      },
+      select: { id: true, name: true, baseUnit: true },
+    });
+
+    const productsMap = new Map(
+      allProducts.map((p) => [p.name.toLowerCase(), p])
     );
+
+    // Додаємо productId до кожного інгредієнта
+    const ingredientsWithIds = aiRecipe.ingredients.map((ing) => {
+      const product = productsMap.get(ing.productName.toLowerCase());
+      return {
+        ...ing,
+        productId: product?.id || null,
+        unit: product?.baseUnit || ing.unit,
+      };
+    });
 
     return {
       expiringProducts: expiringItems.map((item) => ({
@@ -373,7 +405,10 @@ ${allAllergies.length > 0 ? `Обмеження/алергії: ${allAllergies.j
         quantity: item.quantity,
         expiryDate: item.expiryDate,
       })),
-      suggestedRecipe: recipe,
+      suggestedRecipe: {
+        ...aiRecipe,
+        ingredients: ingredientsWithIds,
+      },
     };
   }
 }
