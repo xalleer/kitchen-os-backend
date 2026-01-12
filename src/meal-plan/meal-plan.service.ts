@@ -10,10 +10,8 @@ export class MealPlanService {
     private aiService: AiService,
   ) {}
 
-  /**
-   * Генерує план харчування на тиждень для сім'ї
-   */
-  async generateMealPlan(familyId: string, daysCount: number = 5) {
+
+  async generateMealPlan(familyId: string, daysCount: number = 5, specificDate?: Date) {
     if (daysCount > 7) {
       daysCount = 7;
     }
@@ -58,9 +56,28 @@ export class MealPlanService {
       throw new BadRequestException('Invalid AI response: days array is missing');
     }
 
-    await this.prisma.mealPlan.deleteMany({
-      where: { familyId },
-    });
+    // Якщо вказана конкретна дата - видаляємо тільки той день
+    // Інакше видаляємо весь план
+    if (specificDate) {
+      const startOfDay = new Date(specificDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(specificDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      await this.prisma.mealPlan.deleteMany({
+        where: {
+          familyId,
+          date: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      });
+    } else {
+      await this.prisma.mealPlan.deleteMany({
+        where: { familyId },
+      });
+    }
 
     const savedMealPlans: Awaited<ReturnType<typeof this.prisma.mealPlan.create>>[] = [];
 
@@ -69,6 +86,9 @@ export class MealPlanService {
         console.error('Invalid day structure:', day);
         continue;
       }
+
+      // Використовуємо вказану дату або дату з AI відповіді
+      const dayDate = specificDate || new Date(day.date);
 
       for (const meal of day.meals) {
         const productIds = await this.findOrCreateProducts(meal.recipe.ingredients);
@@ -89,7 +109,7 @@ export class MealPlanService {
         const mealPlan = await this.prisma.mealPlan.create({
           data: {
             familyId,
-            date: new Date(day.date),
+            date: dayDate,
             type: meal.type as MealType,
             recipeId: recipe.id,
           },
@@ -251,6 +271,7 @@ export class MealPlanService {
       },
     });
 
+    // Очищаємо рецепти які більше не використовуються
     for (const meal of deletedMeals) {
       const usageCount = await this.prisma.mealPlan.count({
         where: { recipeId: meal.recipeId },
@@ -266,7 +287,8 @@ export class MealPlanService {
       }
     }
 
-    await this.generateMealPlan(familyId, 1);
+    // ВИПРАВЛЕННЯ: передаємо specificDate, щоб не стерти весь план
+    await this.generateMealPlan(familyId, 1, startOfDay);
 
     return this.getMealPlanForDay(familyId, date);
   }
