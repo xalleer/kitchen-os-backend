@@ -70,7 +70,7 @@ export class AiService {
     const prompt = this.buildRecipePrompt(params);
 
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-5-mini',
+      model: 'gpt-4.1-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 3000,
       temperature: 0.7,
@@ -130,7 +130,7 @@ ${expiringProducts.join(', ')}
 `;
 
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-5-mini',
+      model: 'gpt-4.1-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 3000,
       temperature: 0.7,
@@ -146,7 +146,7 @@ ${expiringProducts.join(', ')}
     const prompt = this.buildMealPlanPrompt(params);
 
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-5-mini',
+      model: 'gpt-4.1-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 8000,
       temperature: 0.8,
