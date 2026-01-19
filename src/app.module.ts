@@ -14,6 +14,7 @@ import { MailModule } from './mail/mail.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { AiModule } from './ai/ai.module';
 import { MealPlanModule } from './meal-plan/meal-plan.module';
+import { ShoppingListModule } from './shopping-list/shopping-list.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { MealPlanModule } from './meal-plan/meal-plan.module';
     MailModule,
     RecipesModule,
     AiModule,
-    MealPlanModule
+    MealPlanModule,
+    ShoppingListModule
   ],
   controllers: [AppController],
   providers: [AppService],
