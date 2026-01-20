@@ -17,6 +17,7 @@ import {
   GenerateCustomRecipeDto,
   SaveRecipeDto,
   CookRecipeDto,
+  CookRecipePreviewDto,
 } from './dto/recipes.dto';
 
 @Controller('recipes')
@@ -78,6 +79,15 @@ export class RecipesController {
     @Body() dto: CookRecipeDto,
   ) {
     return this.recipesService.cookRecipe(familyId, dto);
+  }
+
+  @Post('cook/preview')
+  @HttpCode(HttpStatus.OK)
+  cookRecipePreview(
+    @CurrentUser('familyId') familyId: string,
+    @Body() dto: CookRecipePreviewDto,
+  ) {
+    return this.recipesService.cookRecipePreview(familyId, dto);
   }
 
   @Delete(':id')

@@ -72,6 +72,7 @@ export class ProductsService {
           category: true,
           baseUnit: true,
           caloriesPer100: true,
+          price: true,
           standardAmount: true,
           image: true
         },
@@ -99,6 +100,7 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
+        price: true,
         standardAmount: true,
         familyMemberId: true,
         image: true
@@ -127,6 +129,7 @@ export class ProductsService {
         category: dto.category,
         baseUnit: dto.baseUnit,
         caloriesPer100: dto.caloriesPer100,
+        price: dto.price,
         standardAmount: dto.standardAmount,
       },
       select: {
@@ -135,6 +138,7 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
+        price: true,
         standardAmount: true,
       },
     });
@@ -174,6 +178,7 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
+        price: true,
         standardAmount: true,
       },
     });
@@ -235,5 +240,36 @@ export class ProductsService {
     return categories
       .map((p) => p.category)
       .filter((c): c is string => c !== null);
+  }
+
+  async importProductsFromJson(filePath: string) {
+    const fs = require('fs');
+    const path = require('path');
+
+    const jsonPath = path.resolve(filePath);
+    
+    if (!fs.existsSync(jsonPath)) {
+      throw new NotFoundException(`JSON file not found: ${jsonPath}`);
+    }
+
+    const fileContent = fs.readFileSync(jsonPath, 'utf-8');
+    const data = JSON.parse(fileContent);
+
+    const products = data.products || [];
+
+    if (products.length === 0) {
+      throw new BadRequestException('JSON file is empty or contains no products');
+    }
+
+    const productsToImport = products.map((product: any) => ({
+      name: product.name.trim(),
+      category: product.category || undefined,
+      baseUnit: product.baseUnit as Unit,
+      caloriesPer100: product.caloriesPer100 || undefined,
+      standardAmount: product.standardAmount || undefined,
+      image: product.image || undefined,
+    }));
+
+    return this.seedProducts(productsToImport);
   }
 }

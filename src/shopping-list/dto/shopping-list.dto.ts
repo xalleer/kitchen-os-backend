@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsDateString,
+  IsBoolean,
   Min,
 } from 'class-validator';
 
@@ -39,4 +40,14 @@ export class UpdateShoppingItemDto {
   @IsOptional()
   @IsString()
   manualNote?: string;
+}
+
+export class MarkAsBoughtDto {
+  @IsBoolean()
+  isBought: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  actualPrice?: number;
 }

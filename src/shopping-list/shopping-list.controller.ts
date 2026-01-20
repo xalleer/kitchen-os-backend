@@ -18,6 +18,7 @@ import {
   GenerateShoppingListDto,
   UpdateShoppingItemDto,
   AddManualItemDto,
+  MarkAsBoughtDto,
 } from './dto/shopping-list.dto';
 
 @Controller('shopping-list')
@@ -32,6 +33,18 @@ export class ShoppingListController {
   @Get()
   getShoppingList(@CurrentUser('familyId') familyId: string) {
     return this.shoppingListService.getShoppingList(familyId);
+  }
+
+  @Get('budget')
+  getBudgetSummary(
+    @CurrentUser('familyId') familyId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+
+    return this.shoppingListService.getBudgetSummary(familyId, start, end);
   }
 
   /**
@@ -85,7 +98,7 @@ export class ShoppingListController {
   }
 
   /**
-   * Відмітити продукт як куплений/не куплений
+   * Відмітити продукт як куплений/не куплений з можливістю вказати фактичну ціну
    * POST /shopping-list/:id/mark-bought
    */
   @Post(':id/mark-bought')
@@ -93,9 +106,14 @@ export class ShoppingListController {
   markAsBought(
     @CurrentUser('familyId') familyId: string,
     @Param('id') itemId: string,
-    @Body('isBought') isBought: boolean,
+    @Body() dto: MarkAsBoughtDto,
   ) {
-    return this.shoppingListService.markAsBought(familyId, itemId, isBought);
+    return this.shoppingListService.markAsBought(
+      familyId,
+      itemId,
+      dto.isBought,
+      dto.actualPrice,
+    );
   }
 
   /**

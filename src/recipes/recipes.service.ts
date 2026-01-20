@@ -7,6 +7,7 @@ import {
   GenerateCustomRecipeDto,
   SaveRecipeDto,
   CookRecipeDto,
+  CookRecipePreviewDto,
 } from './dto/recipes.dto';
 
 @Injectable()
@@ -299,6 +300,54 @@ export class RecipesService {
     return {
       message: 'Recipe cooked successfully',
       recipeName: recipe.name,
+      deductedProducts: results,
+    };
+  }
+
+  async cookRecipePreview(familyId: string, dto: CookRecipePreviewDto) {
+    if (!dto.ingredients || dto.ingredients.length === 0) {
+      throw new BadRequestException('No ingredients provided');
+    }
+
+    const productIds = dto.ingredients.map((i) => i.productId);
+    const products = await this.prisma.product.findMany({
+      where: {
+        id: { in: productIds },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    const productNameById = new Map(products.map((p) => [p.id, p.name]));
+
+    const productsToDeduct = dto.ingredients.map((ing) => ({
+      productId: ing.productId,
+      quantity: ing.amount,
+    }));
+
+    for (const { productId, quantity } of productsToDeduct) {
+      const hasEnough = await this.inventoryService.checkProductAvailability(
+        familyId,
+        productId,
+        quantity,
+      );
+
+      if (!hasEnough) {
+        const productName = productNameById.get(productId) || productId;
+        throw new BadRequestException(`Not enough ${productName} in inventory`);
+      }
+    }
+
+    const results = await this.inventoryService.deductProducts(
+      familyId,
+      productsToDeduct,
+    );
+
+    return {
+      message: 'Recipe cooked successfully',
+      recipeName: dto.name || null,
       deductedProducts: results,
     };
   }

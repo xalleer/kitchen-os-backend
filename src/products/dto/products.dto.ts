@@ -35,6 +35,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
+  price?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   standardAmount?: number;
 }
 
@@ -56,6 +61,11 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   caloriesPer100?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  price?: number;
 
   @IsOptional()
   @IsNumber()

@@ -1,61 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import {
+  GenerateRecipeParams,
+  RecipeResponse,
+  MealPlanParams,
+  MealPlanResponse,
+  ProductNormalizationParams,
+  NormalizedProduct,
+} from './ai.types';
+import { buildRecipePrompt, buildExpiringProductsRecipePrompt } from './prompts/recipe.prompts';
+import { buildMealPlanPrompt } from './prompts/meal-plan.prompts';
+import { buildProductNormalizationPrompt } from './prompts/product-normalization.prompts';
 
-/* ================== INTERFACES ================== */
-
-export interface GenerateRecipeParams {
-  productNames: string[];
-  portions?: number;
-  dietaryRestrictions?: string[];
-  goal?: string;
-  cuisine?: string;
-}
-
-export interface RecipeResponse {
-  name: string;
-  description: string;
-  instructions: string[];
-  cookingTime: number;
-  servings: number;
-  calories: number;
-  ingredients: Array<{
-    productName: string;
-    amount: number;
-    unit: string;
-  }>;
-  category?: string;
-}
-
-export interface MealPlanParams {
-  familyMembers: Array<{
-    name: string;
-    allergies: string[];
-    goal: string;
-    eatsBreakfast: boolean;
-    eatsLunch: boolean;
-    eatsDinner: boolean;
-    eatsSnack: boolean;
-  }>;
-  budgetLimit: number;
-  daysCount?: number;
-}
-
-export interface MealPlanResponse {
-  days: Array<{
-    date: string;
-    meals: Array<{
-      type: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
-      recipe: RecipeResponse;
-    }>;
-  }>;
-  estimatedCost: number;
-}
-
-/* ================== SERVICE ================== */
+export type {
+  GenerateRecipeParams,
+  RecipeResponse,
+  MealPlanParams,
+  MealPlanResponse,
+  ProductNormalizationParams,
+  NormalizedProduct,
+} from './ai.types';
 
 @Injectable()
 export class AiService {
+  private readonly logger = new Logger(AiService.name);
   private openai: OpenAI;
 
   constructor(private configService: ConfigService) {
@@ -67,7 +36,7 @@ export class AiService {
   /* ================== RECIPE ================== */
 
   async generateRecipe(params: GenerateRecipeParams): Promise<RecipeResponse> {
-    const prompt = this.buildRecipePrompt(params);
+    const prompt = buildRecipePrompt(params);
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4.1-mini',
@@ -93,41 +62,7 @@ export class AiService {
   async suggestRecipeForExpiringProducts(
     expiringProducts: string[],
   ): Promise<RecipeResponse> {
-    const prompt = `
-Створи рецепт страви, яка використовує ці продукти, що скоро зіпсуються:
-${expiringProducts.join(', ')}
-
-Обов'язково використай УСІ ці продукти.
-
-**ВАЖЛИВО:**
-- amount: ТІЛЬКИ цілі або десяткові числа (наприклад: 100, 2.5, 0.5)
-- НІКОЛИ не використовуй дроби як ½, ¼, ⅓ - тільки десяткові числа
-- instructions: 6-8 детальних кроків
-- кожен крок конкретний з температурою, часом, розмірами
-
-Приклад ПРАВИЛЬНИХ amounts:
-- 100 (не "100")
-- 2.5 (не "2½" або "2 1/2")
-- 0.5 (не "½")
-
-Відповідь надай ТІЛЬКИ у форматі JSON:
-{
-  "name": "назва страви українською",
-  "description": "короткий опис (1-2 речення)",
-  "instructions": ["детальний крок 1", "детальний крок 2", "..."],
-  "cookingTime": 30,
-  "servings": 2,
-  "calories": 450,
-  "ingredients": [
-    {
-      "productName": "продукт",
-      "amount": 100,
-      "unit": "г"
-    }
-  ],
-  "category": "категорія"
-}
-`;
+    const prompt = buildExpiringProductsRecipePrompt(expiringProducts);
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4.1-mini',
@@ -143,7 +78,7 @@ ${expiringProducts.join(', ')}
   /* ================== MEAL PLAN ================== */
 
   async generateMealPlan(params: MealPlanParams): Promise<MealPlanResponse> {
-    const prompt = this.buildMealPlanPrompt(params);
+    const prompt = buildMealPlanPrompt(params);
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4.1-mini',
@@ -161,168 +96,6 @@ ${expiringProducts.join(', ')}
     return parsed;
   }
 
-  /* ================== PROMPTS ================== */
-
-  private buildRecipePrompt(params: GenerateRecipeParams): string {
-    const {
-      productNames,
-      portions = 2,
-      dietaryRestrictions = [],
-      goal,
-      cuisine,
-    } = params;
-
-    let prompt = `Створи рецепт страви з таких продуктів:
-${productNames.join(', ')}
-
-Кількість порцій: ${portions}.`;
-
-    if (dietaryRestrictions.length) {
-      prompt += `\nОбмеження/алергії: ${dietaryRestrictions.join(', ')}`;
-    }
-
-    if (goal) {
-      prompt += `\nМета харчування: ${goal}`;
-    }
-
-    if (cuisine) {
-      prompt += `\nКухня: ${cuisine}`;
-    }
-
-    prompt += `
-
-**КРИТИЧНО ВАЖЛИВО:**
-- amount: ТІЛЬКИ цілі або десяткові числа (100, 2.5, 0.5)
-- ЗАБОРОНЕНО використовувати символи дробів: ½ ¼ ⅓ ¾ ⅛ ⅔
-- Використовуй десяткові: 0.5 замість ½, 0.25 замість ¼, 0.33 замість ⅓
-- instructions: 6-8 детальних кроків
-
-Приклад ПРАВИЛЬНИХ amounts:
-✓ "amount": 100
-✓ "amount": 2.5
-✓ "amount": 0.5
-
-Приклад НЕПРАВИЛЬНИХ amounts (ЗАБОРОНЕНО):
-✗ "amount": ½
-✗ "amount": 2½
-✗ "amount": "100"
-
-Відповідь ТІЛЬКИ у форматі JSON:
-{
-  "name": "назва страви",
-  "description": "короткий опис (1-2 речення)",
-  "instructions": ["детальний крок 1", "детальний крок 2", "..."],
-  "cookingTime": 30,
-  "servings": 2,
-  "calories": 450,
-  "ingredients": [
-    {
-      "productName": "назва зі списку",
-      "amount": 100,
-      "unit": "г"
-    }
-  ],
-  "category": "сніданок"
-}`;
-
-    return prompt;
-  }
-
-  private buildMealPlanPrompt(params: MealPlanParams): string {
-    const { familyMembers, budgetLimit, daysCount = 7 } = params;
-
-    const members = familyMembers
-      .map(
-        (m) =>
-          `- ${m.name}: алергії [${m.allergies.join(', ') || 'немає'}], мета: ${m.goal}, їсть: ${[
-            m.eatsBreakfast && 'сніданок',
-            m.eatsLunch && 'обід',
-            m.eatsDinner && 'вечеря',
-            m.eatsSnack && 'перекус',
-          ]
-            .filter(Boolean)
-            .join(', ')}`,
-      )
-      .join('\n');
-
-    const dates: string[] = [];
-    const today = new Date();
-    for (let i = 0; i < daysCount; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date.toISOString().split('T')[0]);
-    }
-
-    return `
-Створи план харчування на ${daysCount} днів для сім'ї.
-
-Дати: ${dates.join(', ')}
-
-Члени сім'ї:
-${members}
-
-Бюджет на весь період: ${budgetLimit} грн
-
-**КРИТИЧНО ВАЖЛИВО ПРО ФОРМАТ:**
-- amount: ТІЛЬКИ цілі або десяткові числа (100, 2.5, 0.5)
-- ЗАБОРОНЕНО символи дробів: ½ ¼ ⅓ ¾ ⅛ ⅔
-- Використовуй десяткові: 0.5 замість ½, 0.25 замість ¼
-- JSON має бути ВАЛІДНИМ без спецсимволів
-
-Приклад ПРАВИЛЬНОГО amount:
-✓ "amount": 100
-✓ "amount": 2.5
-✓ "amount": 0.5
-
-Приклад НЕПРАВИЛЬНОГО (ЗАБОРОНЕНО):
-✗ "amount": ½
-✗ "amount": 2½
-✗ "amount": "пів склянки"
-
-Вимоги:
-- враховуй алергії ВСІХ членів сім'ї
-- доступні продукти в Україні  
-- не перевищуй бюджет
-- створи різноманітне меню
-- для кожного дня створи страви які їдять ВСІ члени сім'ї
-- instructions: 5-7 детальних кроків
-- description: 1 речення
-
-Формат відповіді ТІЛЬКИ JSON (без markdown):
-{
-  "days": [
-    {
-      "date": "2026-01-12",
-      "meals": [
-        {
-          "type": "BREAKFAST",
-          "recipe": {
-            "name": "Вівсянка з фруктами",
-            "description": "Поживний сніданок з вівсяних пластівців.",
-            "instructions": [
-              "Доведіть до кипіння 400 мл молока, всипте 100 г вівсянки.",
-              "Варіть 5-7 хвилин на слабкому вогні.",
-              "Додайте мед та фрукти."
-            ],
-            "cookingTime": 15,
-            "servings": ${familyMembers.length},
-            "calories": 350,
-            "ingredients": [
-              {"productName": "Вівсянка", "amount": 100, "unit": "г"},
-              {"productName": "Молоко", "amount": 400, "unit": "мл"}
-            ],
-            "category": "сніданок"
-          }
-        }
-      ]
-    }
-  ],
-  "estimatedCost": 1500
-}
-
-ВІДПОВІДЬ ТІЛЬКИ JSON БЕЗ ДОДАТКОВОГО ТЕКСТУ!`;
-  }
-
   /* ================== PARSERS ================== */
 
   private parseRecipeResponse(text: string): RecipeResponse {
@@ -335,10 +108,11 @@ ${members}
     if (!json) throw new Error('Recipe JSON parse error');
 
     try {
-      return JSON.parse(json[0]);
+      return JSON.parse(json[0]) as RecipeResponse;
     } catch (error) {
       console.error('Failed to parse recipe JSON:', json[0].substring(0, 500));
-      throw new Error(`Recipe parsing failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Recipe parsing failed: ${message}`);
     }
   }
 
@@ -350,7 +124,7 @@ ${members}
     const sanitizedText = this.sanitizeJsonText(cleanText);
 
     // Шукаємо JSON об'єкт
-    let json = sanitizedText.match(/\{[\s\S]*\}/);
+    const json = sanitizedText.match(/\{[\s\S]*\}/);
     if (!json) {
       console.error('❌ Failed to find JSON in response');
       throw new Error('Meal plan JSON parse error: No JSON found');
@@ -384,7 +158,7 @@ ${members}
     }
 
     try {
-      const parsed = JSON.parse(jsonText);
+      const parsed = JSON.parse(jsonText) as MealPlanResponse;
 
       // Валідація структури
       if (!parsed.days || !Array.isArray(parsed.days)) {
@@ -392,7 +166,7 @@ ${members}
       }
 
       // Видаляємо неповні дні
-      parsed.days = parsed.days.filter(day => {
+      parsed.days = parsed.days.filter((day) => {
         if (!day.meals || !Array.isArray(day.meals) || day.meals.length === 0) {
           console.warn(`⚠️ Skipping invalid day: ${day.date}`);
           return false;
@@ -407,9 +181,10 @@ ${members}
       console.log(`✅ Successfully parsed ${parsed.days.length} days`);
       return parsed;
     } catch (error) {
-      console.error('❌ JSON Parse Error:', error.message);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ JSON Parse Error:', message);
       console.error('📄 Attempted to parse first 500 chars:', jsonText.substring(0, 500));
-      throw new Error(`Meal plan parsing failed: ${error.message}`);
+      throw new Error(`Meal plan parsing failed: ${message}`);
     }
   }
 
@@ -461,5 +236,201 @@ ${members}
     );
 
     return sanitized;
+  }
+
+  /* ================== PRODUCT NORMALIZATION ================== */
+
+  /**
+   * Нормалізує список продуктів, видаляючи бренди та зайву інформацію
+   * Обробляє продукти партіями для оптимізації
+   */
+  async normalizeProducts(
+    products: ProductNormalizationParams[],
+  ): Promise<NormalizedProduct[]> {
+    if (products.length === 0) {
+      return [];
+    }
+
+    // Обробляємо партіями по 50 продуктів для оптимізації
+    const batchSize = 50;
+    const batches: ProductNormalizationParams[][] = [];
+    
+    for (let i = 0; i < products.length; i += batchSize) {
+      batches.push(products.slice(i, i + batchSize));
+    }
+
+    const normalizedProducts: NormalizedProduct[] = [];
+
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      this.logger.log(
+        `🤖 Обробка партії ${i + 1}/${batches.length} (${batch.length} продуктів)...`,
+      );
+
+      try {
+        const normalized = await this.normalizeProductsBatch(batch);
+        normalizedProducts.push(...normalized);
+
+        // Невелика затримка між партіями, щоб не перевищувати rate limits
+        if (i < batches.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      } catch (error: any) {
+        this.logger.error(
+          `❌ Помилка при обробці партії ${i + 1}: ${error.message}`,
+        );
+        // Продовжуємо з наступною партією
+        continue;
+      }
+    }
+
+    return normalizedProducts;
+  }
+
+  private async normalizeProductsBatch(
+    products: ProductNormalizationParams[],
+  ): Promise<NormalizedProduct[]> {
+    const prompt = buildProductNormalizationPrompt(products);
+
+    const response = await this.openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4000,
+      temperature: 0.3, // Низька температура для більш консистентних результатів
+    });
+
+    const text = response.choices[0].message.content || '[]';
+    const parsed = this.parseNormalizedProducts(text);
+    return this.dedupeNormalizedProducts(parsed);
+  }
+
+  private parseNormalizedProducts(text: string): NormalizedProduct[] {
+    // Очищаємо від markdown форматування
+    const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    // Шукаємо JSON масив
+    const jsonMatch = cleanText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error('Не вдалося знайти JSON масив у відповіді AI');
+    }
+
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (!Array.isArray(parsed)) {
+        throw new Error('Відповідь AI не є масивом');
+      }
+
+      // Валідуємо структуру
+      return parsed.map((item: any, index: number) => {
+        if (!item.name || typeof item.name !== 'string') {
+          throw new Error(
+            `Невалідна структура продукту на позиції ${index}: відсутнє поле name`,
+          );
+        }
+
+        if (!item.baseUnit || !['G', 'ML', 'PCS'].includes(item.baseUnit)) {
+          throw new Error(
+            `Невалідна одиниця вимірювання на позиції ${index}: ${item.baseUnit}`,
+          );
+        }
+
+        return {
+          name: this.canonicalizeProductName(String(item.name).trim()),
+          category: item.category || 'Інше',
+          baseUnit: item.baseUnit as 'G' | 'ML' | 'PCS',
+          price:
+            typeof item.price === 'number'
+              ? item.price
+              : Number.isFinite(Number(item.price))
+                ? Number(item.price)
+                : 0,
+          caloriesPer100:
+            typeof item.caloriesPer100 === 'number'
+              ? item.caloriesPer100
+              : Number.isFinite(Number(item.caloriesPer100))
+                ? Number(item.caloriesPer100)
+                : 0,
+        };
+      });
+    } catch (error: any) {
+      this.logger.error(`❌ Помилка парсингу нормалізованих продуктів: ${error.message}`);
+      this.logger.error(`📄 Відповідь AI (перші 500 символів): ${cleanText.substring(0, 500)}`);
+      throw new Error(`Помилка парсингу нормалізованих продуктів: ${error.message}`);
+    }
+  }
+
+  private canonicalizeProductName(name: string): string {
+    const cleaned = name
+      .replace(/\s+/g, ' ')
+      .replace(/\s*\([^)]*\)\s*/g, ' ')
+      .replace(/\s*,\s*/g, ' ')
+      .trim();
+
+    const lower = cleaned.toLowerCase();
+
+    const varietyWords = new Set([
+      'голден',
+      'гала',
+      'фуджі',
+      'ренет',
+      'айдаред',
+      'джонаголд',
+      'мускат',
+      'кишмиш',
+    ]);
+
+    const tokens = lower.split(' ').filter(Boolean);
+    if (tokens.length >= 2 && varietyWords.has(tokens[tokens.length - 1])) {
+      return cleaned
+        .split(' ')
+        .slice(0, -1)
+        .join(' ')
+        .trim();
+    }
+
+    const singularMap: Record<string, string> = {
+      яблука: 'Яблуко',
+      банани: 'Банан',
+      апельсини: 'Апельсин',
+      лимони: 'Лимон',
+      помідори: 'Помідор',
+      огірки: 'Огірок',
+      яйця: 'Яйце',
+    };
+
+    if (singularMap[lower]) {
+      return singularMap[lower];
+    }
+
+    return cleaned;
+  }
+
+  private dedupeNormalizedProducts(products: NormalizedProduct[]): NormalizedProduct[] {
+    const byKey = new Map<string, NormalizedProduct>();
+
+    for (const p of products) {
+      const key = p.name.trim().toLowerCase();
+      const existing = byKey.get(key);
+
+      if (!existing) {
+        byKey.set(key, p);
+        continue;
+      }
+
+      const merged: NormalizedProduct = {
+        ...existing,
+        category: existing.category || p.category,
+        baseUnit: existing.baseUnit || p.baseUnit,
+        price: (existing.price && existing.price > 0 ? existing.price : p.price) || 0,
+        caloriesPer100:
+          (existing.caloriesPer100 && existing.caloriesPer100 > 0
+            ? existing.caloriesPer100
+            : p.caloriesPer100) || 0,
+      };
+
+      byKey.set(key, merged);
+    }
+
+    return Array.from(byKey.values());
   }
 }

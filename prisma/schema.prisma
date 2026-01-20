@@ -120,6 +120,7 @@ model Product {
   category          String?
   baseUnit          Unit
   caloriesPer100    Float?
+  price             Float?
   image             String?
   standardAmount    Float?
   inventoryItems    InventoryItem[]
@@ -185,10 +186,16 @@ model ShoppingListItem {
   product   Product @relation(fields: [productId], references: [id])
   productId String
 
-  quantity Float
-  isBought Boolean @default(false)
+  quantity       Float
+  isBought       Boolean  @default(false)
+  estimatedPrice Float?
+  actualPrice    Float?
+  boughtAt       DateTime?
 
   manualNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Allergy {

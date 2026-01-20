@@ -2,6 +2,38 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { Unit } from '@prisma/client';
 
+type BoughtShoppingListItem = {
+  id: string;
+  quantity: number;
+  actualPrice: number | null;
+  estimatedPrice: number | null;
+  boughtAt: Date | null;
+  product: {
+    name: string;
+    baseUnit: Unit;
+  };
+};
+
+type BoughtShoppingListItemWithFullProduct = {
+  id: string;
+  productId: string;
+  quantity: number;
+  actualPrice: number | null;
+  estimatedPrice: number | null;
+  boughtAt: Date | null;
+  product: {
+    id: string;
+    name: string;
+    category: string | null;
+    baseUnit: Unit;
+    caloriesPer100: number | null;
+    price: number | null;
+    image: string | null;
+    standardAmount: number | null;
+    familyMemberId: string | null;
+  };
+};
+
 export interface ProductRequirement {
   productId: string;
   productName: string;
@@ -240,6 +272,75 @@ export class ShoppingListService {
     };
   }
 
+  async getBudgetSummary(familyId: string, startDate?: Date, endDate?: Date) {
+    const family = await this.prisma.family.findUnique({
+      where: { id: familyId },
+      select: { budgetLimit: true },
+    });
+
+    if (!family) {
+      throw new NotFoundException('Family not found');
+    }
+
+    const where: any = {
+      familyId,
+      isBought: true,
+    };
+
+    if (startDate || endDate) {
+      if (startDate && Number.isNaN(startDate.getTime())) {
+        throw new BadRequestException('Invalid startDate');
+      }
+      if (endDate && Number.isNaN(endDate.getTime())) {
+        throw new BadRequestException('Invalid endDate');
+      }
+      where.boughtAt = {};
+      if (startDate) where.boughtAt.gte = startDate;
+      if (endDate) where.boughtAt.lte = endDate;
+    }
+
+    const boughtItems = (await this.prisma.shoppingListItem.findMany({
+      where,
+      select: {
+        id: true,
+        quantity: true,
+        actualPrice: true,
+        estimatedPrice: true,
+        boughtAt: true,
+        product: {
+          select: {
+            name: true,
+            baseUnit: true,
+          },
+        },
+      },
+    } as any)) as unknown as BoughtShoppingListItem[];
+
+    const spent = boughtItems.reduce((sum, item) => {
+      const price =
+        item.actualPrice ??
+        item.estimatedPrice ??
+        this.estimatePrice(item.product.name, item.quantity, item.product.baseUnit);
+      return sum + (price || 0);
+    }, 0);
+
+    const budgetLimit = Number(family.budgetLimit || 0);
+    const spentRounded = Math.round(spent);
+    const remaining = Math.round(budgetLimit - spent);
+
+    return {
+      budgetLimit,
+      spent: spentRounded,
+      remaining,
+      withinBudget: spent <= budgetLimit,
+      period: {
+        startDate: startDate?.toISOString(),
+        endDate: endDate?.toISOString(),
+      },
+      itemsCount: boughtItems.length,
+    };
+  }
+
   /**
    * Оновити item в списку покупок
    */
@@ -280,9 +381,14 @@ export class ShoppingListService {
   }
 
   /**
-   * Відмітити продукт як куплений
+   * Відмітити продукт як куплений з можливістю вказати фактичну ціну
    */
-  async markAsBought(familyId: string, itemId: string, isBought: boolean) {
+  async markAsBought(
+    familyId: string,
+    itemId: string,
+    isBought: boolean,
+    actualPrice?: number,
+  ) {
     const item = await this.prisma.shoppingListItem.findFirst({
       where: { id: itemId, familyId },
     });
@@ -291,9 +397,24 @@ export class ShoppingListService {
       throw new NotFoundException('Shopping list item not found');
     }
 
+    const updateData: {
+      isBought: boolean;
+      boughtAt?: Date | null;
+      actualPrice?: number;
+    } = { isBought };
+
+    if (isBought) {
+      updateData.boughtAt = new Date();
+      if (actualPrice !== undefined) {
+        updateData.actualPrice = actualPrice;
+      }
+    } else {
+      updateData.boughtAt = null;
+    }
+
     const updated = await this.prisma.shoppingListItem.update({
       where: { id: itemId },
-      data: { isBought },
+      data: updateData,
       include: {
         product: {
           select: {
@@ -333,13 +454,13 @@ export class ShoppingListService {
    * Завершити покупки - додати все до інвентаря
    */
   async completeShopping(familyId: string) {
-    const boughtItems = await this.prisma.shoppingListItem.findMany({
+    const boughtItems = (await this.prisma.shoppingListItem.findMany({
       where: {
         familyId,
         isBought: true,
       },
       include: { product: true },
-    });
+    } as any)) as unknown as BoughtShoppingListItemWithFullProduct[];
 
     if (boughtItems.length === 0) {
       throw new BadRequestException('No items marked as bought');
@@ -385,6 +506,16 @@ export class ShoppingListService {
       },
     });
 
+    // Підраховуємо бюджет
+    const totalEstimated = boughtItems.reduce(
+      (sum, item) => sum + (item.estimatedPrice || 0),
+      0,
+    );
+    const totalActual = boughtItems.reduce(
+      (sum, item) => sum + (item.actualPrice || item.estimatedPrice || 0),
+      0,
+    );
+
     return {
       message: 'Shopping completed successfully',
       addedToInventory: boughtItems.length,
@@ -392,7 +523,15 @@ export class ShoppingListService {
         name: item.product.name,
         quantity: item.quantity,
         unit: item.product.baseUnit,
+        estimatedPrice: item.estimatedPrice,
+        actualPrice: item.actualPrice,
       })),
+      budget: {
+        estimated: Math.round(totalEstimated),
+        actual: Math.round(totalActual),
+        difference: Math.round(totalActual - totalEstimated),
+        savedMoney: totalActual < totalEstimated,
+      },
     };
   }
 

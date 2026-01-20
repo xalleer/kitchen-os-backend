@@ -12,6 +12,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
+import { ProductsImportService } from './products-import.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   CreateProductDto,
@@ -22,7 +23,10 @@ import {
 @Controller('products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly productsImportService: ProductsImportService,
+  ) {}
 
   @Get()
   getProducts(@Query() query: GetProductsQueryDto) {
@@ -58,5 +62,10 @@ export class ProductsController {
   @Post('seed')
   async seed(@Body() products: CreateProductDto[]) {
     return this.productsService.seedProducts(products);
+  }
+
+  @Post('import')
+  async importFromJson() {
+    return this.productsImportService.importProductsFromJson();
   }
 }

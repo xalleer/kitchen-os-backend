@@ -63,6 +63,27 @@ export class CookRecipeDto {
   recipeId: string;
 }
 
+class CookRecipePreviewIngredientDto {
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
+
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+}
+
+export class CookRecipePreviewDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CookRecipePreviewIngredientDto)
+  ingredients: CookRecipePreviewIngredientDto[];
+}
+
 export class SaveRecipeDto {
   @IsString()
   @IsNotEmpty()

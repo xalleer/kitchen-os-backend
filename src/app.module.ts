@@ -15,9 +15,11 @@ import { RecipesModule } from './recipes/recipes.module';
 import { AiModule } from './ai/ai.module';
 import { MealPlanModule } from './meal-plan/meal-plan.module';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     FamilyModule,
