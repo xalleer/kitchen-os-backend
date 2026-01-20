@@ -68,6 +68,14 @@ model UserPreference {
   eatsLunch     Boolean @default(true)
   eatsDinner    Boolean @default(true)
   eatsSnack     Boolean @default(false)
+  
+  // ⭐ НОВЕ: Налаштування часу прийому їжі
+  breakfastTime String?  // "09:00"
+  lunchTime     String?  // "13:00"
+  snackTime     String?  // "17:00"
+  dinnerTime    String?  // "20:00"
+  
+  notificationsEnabled Boolean @default(false)
 }
 
 model Family {
@@ -81,6 +89,11 @@ model Family {
   inventory    InventoryItem[]
   shoppingList ShoppingListItem[]
   mealPlans    MealPlan[]
+  
+  // ⭐ НОВЕ: Тижневі плани та бюджети
+  weeklyMealPlans WeeklyMealPlan[]
+  weeklyBudgets   WeeklyBudget[]
+  familyInvites   FamilyInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,6 +125,70 @@ model FamilyMember {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Product   Product[]
+  
+  // ⭐ НОВЕ: Система інвайтів
+  invite    FamilyInvite?
+}
+
+// ⭐ НОВЕ: Коди запрошення для членів сім'ї
+model FamilyInvite {
+  id              String       @id @default(uuid())
+  familyId        String
+  family          Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  familyMemberId  String       @unique
+  familyMember    FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  
+  inviteCode      String       @unique
+  expiresAt       DateTime?
+  usedAt          DateTime?
+  usedByUserId    String?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@index([inviteCode])
+  @@index([familyMemberId])
+}
+
+// ⭐ НОВЕ: Тижневі плани харчування
+model WeeklyMealPlan {
+  id              String    @id @default(uuid())
+  familyId        String
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  startDate       DateTime
+  endDate         DateTime
+  isConfirmed     Boolean   @default(false)
+  confirmedAt     DateTime?
+  
+  estimatedCost   Decimal   @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([familyId, startDate])
+  @@index([familyId, isConfirmed])
+}
+
+// ⭐ НОВЕ: Тижневий бюджет
+model WeeklyBudget {
+  id            String   @id @default(uuid())
+  familyId      String
+  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  weekStartDate DateTime
+  weekEndDate   DateTime
+  
+  totalBudget   Decimal
+  spent         Decimal  @default(0)
+  remaining     Decimal  @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([familyId, weekStartDate])
+  @@index([familyId, weekStartDate])
 }
 
 model Product {
@@ -140,6 +217,10 @@ model InventoryItem {
 
   quantity   Float
   expiryDate DateTime?
+  
+  // ⭐ НОВЕ: Вирахування з бюджету
+  deductFromBudget Boolean  @default(false)
+  purchasePrice    Float?   // ціна покупки для вирахування з бюджету
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,6 +257,12 @@ model MealPlan {
 
   recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId String
+  
+  // ⭐ НОВЕ: Статус приготування
+  isCooked   Boolean   @default(false)
+  cookedAt   DateTime?
+  isSkipped  Boolean   @default(false)
+  skippedAt  DateTime?
 }
 
 model ShoppingListItem {

@@ -16,6 +16,7 @@ import { AiModule } from './ai/ai.module';
 import { MealPlanModule } from './meal-plan/meal-plan.module';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { FamilyInvitesModule } from './family-invites/family-invites.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     UsersModule,
     FamilyModule,
+    FamilyInvitesModule,
     ProductsModule,
     InventoryModule,
     PrismaModule,
@@ -43,7 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RecipesModule,
     AiModule,
     MealPlanModule,
-    ShoppingListModule
+    ShoppingListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

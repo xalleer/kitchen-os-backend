@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { OwnerProfileDto, RegisterDto } from './dto/register.dto';
+import { RegisterDto, OwnerProfileDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { LoginDto } from './dto/login.dto';
@@ -10,20 +10,81 @@ import {ConfigService} from '@nestjs/config';
 import { Gender, Goal } from '@prisma/client';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../mail/mail.service';
+import { FamilyInvitesService } from '../family-invites/family-invites.service';
+import { JoinFamilyDto } from './dto/join-family.dto';
 
 @Injectable()
 export class AuthService {
   private googleClient: OAuth2Client;
+  
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private mailService: MailService
+    private mailService: MailService,
+    private familyInvitesService: FamilyInvitesService, // ⭐ НОВЕ
   ) {
     const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     this.googleClient = new OAuth2Client(googleClientId);
   }
 
+  // ⭐ НОВА ФУНКЦІЯ: Реєстрація через інвайт код
+  public async joinFamily(dto: JoinFamilyDto) {
+    // Перевіряємо чи існує користувач
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
+
+    // Отримуємо інформацію з інвайту
+    const inviteInfo = await this.familyInvitesService.getInviteInfo(dto.inviteCode);
+
+    // Хешуємо пароль
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dto.password, salt);
+
+    // Створюємо користувача і прив'язуємо до сім'ї
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashedPassword,
+        name: dto.name || inviteInfo.memberInfo.name,
+        familyId: inviteInfo.familyId,
+      },
+    });
+
+    // Використовуємо інвайт код
+    await this.familyInvitesService.useInviteCode(
+      dto.inviteCode,
+      user.id,
+      user.email,
+    );
+
+    // Оновлюємо дані члена сім'ї якщо користувач вказав додаткові параметри
+    if (dto.weight || dto.height || dto.age || dto.goal) {
+      await this.prisma.familyMember.update({
+        where: { id: inviteInfo.memberInfo.id },
+        data: {
+          weight: dto.weight,
+          height: dto.height,
+          age: dto.age,
+          goal: dto.goal || inviteInfo.memberInfo.eatsBreakfast ? 'MAINTAIN' : undefined,
+        },
+      });
+    }
+
+    return this.generateToken(user.id, user.email, inviteInfo.familyId);
+  }
+
+  // ⭐ НОВА ФУНКЦІЯ: Отримати інформацію про інвайт (для UI)
+  public async getInviteInfo(inviteCode: string) {
+    return this.familyInvitesService.getInviteInfo(inviteCode);
+  }
+
+  // Існуюча функція register - БЕЗ ЗМІН
   public async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -60,12 +121,13 @@ export class AuthService {
         },
       });
 
+      // Створюємо owner member profile
       await prisma.familyMember.create({
         data: this.prepareMemberData(safeOwnerProfile, family.id, user.id),
       });
 
+      // Створюємо інших членів сім'ї
       if (dto.familyMembers && dto.familyMembers.length > 0) {
-
         for (const member of dto.familyMembers) {
           await prisma.familyMember.create({
             data: this.prepareMemberData(member, family.id, null),
@@ -79,6 +141,7 @@ export class AuthService {
     return this.generateToken(result.user.id, result.user.email, result.family.id);
   }
 
+  // Решта функцій БЕЗ ЗМІН
   public async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -100,7 +163,6 @@ export class AuthService {
 
     return this.generateToken(user.id, user.email, user.familyId!);
   }
-
 
   public async loginWithGoogle(token: string) {
     try {
@@ -147,7 +209,6 @@ export class AuthService {
               familyId: family.id,
               userId: newUser.id,
               name: name,
-
               gender: Gender.UNSPECIFIED,
               goal: Goal.MAINTAIN,
               eatsBreakfast: true,

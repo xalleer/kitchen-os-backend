@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
+import { JoinFamilyDto } from './dto/join-family.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,5 +42,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  @Post('join-family')
+  async joinFamily(@Body() dto: JoinFamilyDto) {
+    return this.authService.joinFamily(dto);
+  }
+
+  @Get('invite/:code')
+  async getInviteInfo(@Param('code') code: string) {
+    return this.authService.getInviteInfo(code);
   }
 }
