@@ -17,6 +17,7 @@ import {
   GenerateMealPlanDto,
   GetMealPlanQueryDto,
   RegenerateDayDto,
+  CookMealPlanDto,
 } from './dto/meal-plan.dto';
 
 @Controller('meal-plan')
@@ -88,6 +89,25 @@ export class MealPlanController {
     @Param('id') mealPlanId: string,
   ) {
     return this.mealPlanService.regenerateMeal(familyId, mealPlanId);
+  }
+
+  @Post(':id/cook')
+  @HttpCode(HttpStatus.OK)
+  async cookMeal(
+    @CurrentUser('familyId') familyId: string,
+    @Param('id') mealPlanId: string,
+    @Body() dto: CookMealPlanDto,
+  ) {
+    return this.mealPlanService.cookMeal(familyId, mealPlanId, dto);
+  }
+
+  @Post(':id/skip')
+  @HttpCode(HttpStatus.OK)
+  async skipMeal(
+    @CurrentUser('familyId') familyId: string,
+    @Param('id') mealPlanId: string,
+  ) {
+    return this.mealPlanService.skipMeal(familyId, mealPlanId);
   }
 
   /**

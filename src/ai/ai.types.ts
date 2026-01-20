@@ -14,11 +14,20 @@ export interface RecipeResponse {
   servings: number;
   calories: number;
   ingredients: Array<{
+    productId?: string;
     productName: string;
     amount: number;
     unit: string;
   }>;
   category?: string;
+}
+
+export interface AllowedProduct {
+  id: string;
+  name: string;
+  baseUnit: 'G' | 'ML' | 'PCS';
+  price: number | null;
+  standardAmount: number | null;
 }
 
 export interface MealPlanParams {
@@ -33,6 +42,7 @@ export interface MealPlanParams {
   }>;
   budgetLimit: number;
   daysCount?: number;
+  allowedProducts?: AllowedProduct[];
 }
 
 export interface MealPlanResponse {

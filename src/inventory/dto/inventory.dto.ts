@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsDateString,
+  IsBoolean,
   Min,
 } from 'class-validator';
 
@@ -19,6 +20,15 @@ export class AddToInventoryDto {
   @IsOptional()
   @IsDateString()
   expiryDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  deductFromBudget?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  purchasePrice?: number;
 }
 
 export class UpdateInventoryItemDto {
@@ -30,6 +40,15 @@ export class UpdateInventoryItemDto {
   @IsOptional()
   @IsDateString()
   expiryDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  deductFromBudget?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  purchasePrice?: number;
 }
 
 export class RemoveFromInventoryDto {

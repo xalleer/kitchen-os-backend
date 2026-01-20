@@ -1,7 +1,7 @@
 import { MealPlanParams } from '../ai.types';
 
 export function buildMealPlanPrompt(params: MealPlanParams): string {
-  const { familyMembers, budgetLimit, daysCount = 7 } = params;
+  const { familyMembers, budgetLimit, daysCount = 7, allowedProducts = [] } = params;
 
   const members = familyMembers
     .map(
@@ -25,6 +25,14 @@ export function buildMealPlanPrompt(params: MealPlanParams): string {
     dates.push(date.toISOString().split('T')[0]);
   }
 
+  const productsCatalog = allowedProducts
+    .slice(0, 400)
+    .map(
+      (p) =>
+        `- ${p.id} | ${p.name} | unit=${p.baseUnit} | price=${p.price ?? 0} | standardAmount=${p.standardAmount ?? 0}`,
+    )
+    .join('\n');
+
   return `
 Створи план харчування на ${daysCount} днів для сім'ї.
 
@@ -34,6 +42,15 @@ export function buildMealPlanPrompt(params: MealPlanParams): string {
 ${members}
 
 Бюджет на весь період: ${budgetLimit} грн
+
+ДОЗВОЛЕНІ ПРОДУКТИ (використовуй ТІЛЬКИ їх):
+${productsCatalog || '- (список порожній)'}
+
+**КРИТИЧНО ВАЖЛИВО ПРО ПРОДУКТИ:**
+- Заборонено вигадувати нові продукти або використовувати продукти поза списком ДОЗВОЛЕНІ ПРОДУКТИ
+- Кожен інгредієнт має посилатися на продукт зі списку. Використовуй "productId" (з каталогу) як основний ідентифікатор
+- Поле "productName" залишай як назву з каталогу (має відповідати productId)
+- Одиниця виміру інгредієнту має відповідати baseUnit продукту (G/ML/PCS)
 
 **КРИТИЧНО ВАЖЛИВО ПРО ФОРМАТ:**
 - amount: ТІЛЬКИ цілі або десяткові числа (100, 2.5, 0.5)
@@ -80,8 +97,8 @@ ${members}
             "servings": ${familyMembers.length},
             "calories": 350,
             "ingredients": [
-              {"productName": "Вівсянка", "amount": 100, "unit": "г"},
-              {"productName": "Молоко", "amount": 400, "unit": "мл"}
+              {"productId": "<id-from-catalog>", "productName": "Вівсянка", "amount": 100, "unit": "г"},
+              {"productId": "<id-from-catalog>", "productName": "Молоко", "amount": 400, "unit": "мл"}
             ],
             "category": "сніданок"
           }

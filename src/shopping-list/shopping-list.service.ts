@@ -42,6 +42,7 @@ export interface ProductRequirement {
   needToBuy: number;
   baseUnit: Unit;
   estimatedPrice?: number;
+  pricePerUnit?: number | null;
 }
 
 export interface ShoppingListItemWithProduct {
@@ -127,6 +128,7 @@ export class ShoppingListService {
             needToBuy: 0,
             baseUnit: ingredient.product.baseUnit,
             estimatedPrice: 0,
+            pricePerUnit: ingredient.product.price,
           });
         }
       }
@@ -161,7 +163,7 @@ export class ShoppingListService {
         req.needToBuy = standardAmount;
 
         // Оцінюємо ціну
-        req.estimatedPrice = this.estimatePrice(req.productName, standardAmount, req.baseUnit);
+        req.estimatedPrice = this.estimatePrice(req.pricePerUnit ?? null, standardAmount, req.baseUnit);
 
         shoppingItems.push(req);
       }
@@ -181,6 +183,7 @@ export class ShoppingListService {
           productId: item.productId,
           quantity: item.needToBuy,
           isBought: false,
+          estimatedPrice: item.estimatedPrice || 0,
           manualNote: null,
         },
         include: {
@@ -234,6 +237,7 @@ export class ShoppingListService {
             name: true,
             category: true,
             baseUnit: true,
+            price: true,
             image: true,
           },
         },
@@ -246,12 +250,10 @@ export class ShoppingListService {
     });
 
     const estimatedCost = items.reduce((sum, item) => {
-      const price = this.estimatePrice(
-        item.product.name,
-        item.quantity,
-        item.product.baseUnit,
-      );
-      return sum + price;
+      const price =
+        item.estimatedPrice ??
+        this.estimatePrice(item.product.price ?? null, item.quantity, item.product.baseUnit);
+      return sum + (price || 0);
     }, 0);
 
     const family = await this.prisma.family.findUnique({
@@ -320,7 +322,7 @@ export class ShoppingListService {
       const price =
         item.actualPrice ??
         item.estimatedPrice ??
-        this.estimatePrice(item.product.name, item.quantity, item.product.baseUnit);
+        this.estimatePrice(null, item.quantity, item.product.baseUnit);
       return sum + (price || 0);
     }, 0);
 
@@ -655,76 +657,15 @@ export class ShoppingListService {
   /**
    * Оцінити ціну продукту (базові ціни)
    */
-  private estimatePrice(productName: string, quantity: number, unit: Unit): number {
-    const name = productName.toLowerCase();
-
-    // Базові ціни за 100г/100мл/1шт (в грн)
-    let pricePerUnit = 0;
-
-    // М'ясо та риба
-    if (name.includes('курка') || name.includes('куряч')) pricePerUnit = 1.2;
-    else if (name.includes('свинина')) pricePerUnit = 1.8;
-    else if (name.includes('яловичина')) pricePerUnit = 2.5;
-    else if (name.includes('риба')) pricePerUnit = 2.0;
-
-    // Молочні продукти
-    else if (name.includes('молоко')) pricePerUnit = 0.35;
-    else if (name.includes('сир твердий')) pricePerUnit = 2.5;
-    else if (name.includes('сметана')) pricePerUnit = 0.8;
-    else if (name.includes('йогурт')) pricePerUnit = 0.6;
-    else if (name.includes('масло')) pricePerUnit = 3.0;
-
-    // Овочі
-    else if (name.includes('картопля')) pricePerUnit = 0.15;
-    else if (name.includes('морква')) pricePerUnit = 0.2;
-    else if (name.includes('цибуля')) pricePerUnit = 0.2;
-    else if (name.includes('капуста')) pricePerUnit = 0.25;
-    else if (name.includes('помідор')) pricePerUnit = 0.6;
-    else if (name.includes('огірок')) pricePerUnit = 0.5;
-
-    // Фрукти
-    else if (name.includes('яблуко')) pricePerUnit = 0.4;
-    else if (name.includes('банан')) pricePerUnit = 0.5;
-    else if (name.includes('апельсин')) pricePerUnit = 0.6;
-
-    // Крупи та макарони
-    else if (name.includes('рис')) pricePerUnit = 0.4;
-    else if (name.includes('гречка')) pricePerUnit = 0.5;
-    else if (name.includes('макарон')) pricePerUnit = 0.35;
-    else if (name.includes('вівсян')) pricePerUnit = 0.3;
-
-    // Яйця (за десяток)
-    else if (name.includes('яйц')) {
-      const dozens = Math.ceil(quantity / 10);
-      return dozens * 50;
-    }
-
-    // Хліб
-    else if (name.includes('хліб')) pricePerUnit = 20;
-
-    // Олія
-    else if (name.includes('олія')) pricePerUnit = 0.7;
-
-    // Борошно
-    else if (name.includes('борошно')) pricePerUnit = 0.25;
-
-    // Цукор
-    else if (name.includes('цукор')) pricePerUnit = 0.3;
-
-    // Сіль
-    else if (name.includes('сіль')) pricePerUnit = 0.1;
-
-    // За замовчуванням
-    else pricePerUnit = 0.5;
-
-    // Розраховуємо ціну залежно від одиниці виміру
+  private estimatePrice(pricePerUnit: number | null, quantity: number, unit: Unit): number {
+    const p = typeof pricePerUnit === 'number' && Number.isFinite(pricePerUnit) ? pricePerUnit : 0;
     if (unit === 'G' || unit === 'ML') {
-      return (quantity / 100) * pricePerUnit;
-    } else if (unit === 'PCS') {
-      return quantity * pricePerUnit;
+      return (quantity / 100) * p;
     }
-
-    return quantity * pricePerUnit;
+    if (unit === 'PCS') {
+      return quantity * p;
+    }
+    return quantity * p;
   }
 
   /**

@@ -1,15 +1,24 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService, MealPlanParams } from '../ai/ai.service';
-import { MealType } from '@prisma/client';
+import { MealType, Unit } from '@prisma/client';
+import { InventoryService } from '../inventory/inventory.service';
+import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import { CookMealPlanDto } from './dto/meal-plan.dto';
 
 @Injectable()
 export class MealPlanService {
   constructor(
     private prisma: PrismaService,
     private aiService: AiService,
+    private inventoryService: InventoryService,
+    private shoppingListService: ShoppingListService,
   ) {}
-
 
   async generateMealPlan(familyId: string, daysCount: number = 5, specificDate?: Date) {
     if (daysCount > 7) {
@@ -34,6 +43,24 @@ export class MealPlanService {
       throw new BadRequestException('Family has no members');
     }
 
+    const allowedProducts = await this.prisma.product.findMany({
+      where: {
+        familyMemberId: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        baseUnit: true,
+        price: true,
+        standardAmount: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    const allowedProductsById = new Map(
+      allowedProducts.map((p) => [p.id, { baseUnit: p.baseUnit, price: p.price }]),
+    );
+
     const aiParams: MealPlanParams = {
       familyMembers: family.members.map((member) => ({
         name: member.name,
@@ -46,6 +73,7 @@ export class MealPlanService {
       })),
       budgetLimit: Number(family.budgetLimit) || 0,
       daysCount,
+      allowedProducts,
     };
 
     const aiMealPlan = await this.aiService.generateMealPlan(aiParams);
@@ -80,6 +108,7 @@ export class MealPlanService {
     }
 
     const savedMealPlans: Awaited<ReturnType<typeof this.prisma.mealPlan.create>>[] = [];
+    let estimatedCost = 0;
 
     for (const day of aiMealPlan.days) {
       if (!day.meals || !Array.isArray(day.meals)) {
@@ -91,7 +120,17 @@ export class MealPlanService {
       const dayDate = specificDate || new Date(day.date);
 
       for (const meal of day.meals) {
-        const productIds = await this.findOrCreateProducts(meal.recipe.ingredients);
+        const productIds = await this.mapIngredientsToExistingProducts(meal.recipe.ingredients);
+
+        for (let i = 0; i < meal.recipe.ingredients.length; i++) {
+          const ing = meal.recipe.ingredients[i];
+          const productId = productIds[i];
+          const p = allowedProductsById.get(productId);
+          if (!p) {
+            continue;
+          }
+          estimatedCost += this.estimatePrice(p.price ?? null, ing.amount, p.baseUnit);
+        }
 
         const recipe = await this.prisma.recipe.create({
           data: {
@@ -132,12 +171,23 @@ export class MealPlanService {
 
     return {
       message: 'Meal plan generated successfully',
-      estimatedCost: aiMealPlan.estimatedCost,
+      estimatedCost: Math.round(estimatedCost),
       budgetLimit: Number(family.budgetLimit),
       daysCount,
       totalMeals: savedMealPlans.length,
       mealPlans: savedMealPlans,
     };
+  }
+
+  private estimatePrice(pricePerUnit: number | null, quantity: number, unit: Unit): number {
+    const p = typeof pricePerUnit === 'number' && Number.isFinite(pricePerUnit) ? pricePerUnit : 0;
+    if (unit === 'G' || unit === 'ML') {
+      return (quantity / 100) * p;
+    }
+    if (unit === 'PCS') {
+      return quantity * p;
+    }
+    return quantity * p;
   }
 
   /**
@@ -353,7 +403,7 @@ export class MealPlanService {
       throw new BadRequestException('Failed to generate new meal');
     }
 
-    const productIds = await this.findOrCreateProducts(newMeal.recipe.ingredients);
+    const productIds = await this.mapIngredientsToExistingProducts(newMeal.recipe.ingredients);
 
     const newRecipe = await this.prisma.recipe.create({
       data: {
@@ -433,6 +483,200 @@ export class MealPlanService {
     return { message: 'Meal plan deleted successfully' };
   }
 
+  async cookMeal(familyId: string, mealPlanId: string, dto: CookMealPlanDto) {
+    const mealPlan = await this.prisma.mealPlan.findFirst({
+      where: {
+        id: mealPlanId,
+        familyId,
+      },
+      include: {
+        recipe: {
+          include: {
+            ingredients: {
+              include: {
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    baseUnit: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!mealPlan) {
+      throw new NotFoundException('Meal plan not found');
+    }
+
+    if (mealPlan.isCooked) {
+      return {
+        message: 'Meal already cooked',
+        mealPlan,
+      };
+    }
+
+    if (mealPlan.isSkipped) {
+      throw new BadRequestException('Meal is skipped');
+    }
+
+    const requiredByProduct = new Map<
+      string,
+      { productId: string; quantity: number; productName: string; baseUnit: Unit }
+    >();
+
+    for (const ingredient of mealPlan.recipe.ingredients) {
+      const existing = requiredByProduct.get(ingredient.productId);
+      if (existing) {
+        existing.quantity += ingredient.amount;
+      } else {
+        requiredByProduct.set(ingredient.productId, {
+          productId: ingredient.productId,
+          quantity: ingredient.amount,
+          productName: ingredient.product.name,
+          baseUnit: ingredient.product.baseUnit,
+        });
+      }
+    }
+
+    const inventoryItems = await this.prisma.inventoryItem.findMany({
+      where: {
+        familyId,
+        productId: {
+          in: [...requiredByProduct.keys()],
+        },
+      },
+    });
+
+    const inventoryTotals = new Map<string, number>();
+    for (const item of inventoryItems) {
+      inventoryTotals.set(item.productId, (inventoryTotals.get(item.productId) || 0) + item.quantity);
+    }
+
+    const missingItems: Array<{
+      productId: string;
+      productName: string;
+      baseUnit: Unit;
+      required: number;
+      inInventory: number;
+      missing: number;
+    }> = [];
+
+    for (const req of requiredByProduct.values()) {
+      const inInventory = inventoryTotals.get(req.productId) || 0;
+      const missing = req.quantity - inInventory;
+
+      if (missing > 0) {
+        missingItems.push({
+          productId: req.productId,
+          productName: req.productName,
+          baseUnit: req.baseUnit,
+          required: req.quantity,
+          inInventory,
+          missing,
+        });
+      }
+    }
+
+    if (missingItems.length > 0) {
+      if (dto?.addToShoppingList) {
+        for (const item of missingItems) {
+          await this.shoppingListService.addManualItem(
+            familyId,
+            item.productId,
+            item.missing,
+            undefined,
+          );
+        }
+      }
+
+      throw new ConflictException({
+        message: 'Not enough products in inventory',
+        missingItems,
+        addedToShoppingList: Boolean(dto?.addToShoppingList),
+      });
+    }
+
+    const toDeduct = [...requiredByProduct.values()].map((r) => ({
+      productId: r.productId,
+      quantity: r.quantity,
+    }));
+
+    const deductResults = await this.inventoryService.deductProducts(familyId, toDeduct);
+    const failed = deductResults.filter((r) => !r.success);
+    if (failed.length > 0) {
+      throw new ConflictException({
+        message: 'Failed to deduct some products from inventory',
+        failed,
+      });
+    }
+
+    const updated = await this.prisma.mealPlan.update({
+      where: { id: mealPlanId },
+      data: {
+        isCooked: true,
+        cookedAt: new Date(),
+      },
+      include: {
+        recipe: {
+          include: {
+            ingredients: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      message: 'Meal cooked successfully',
+      deducted: deductResults,
+      mealPlan: updated,
+    };
+  }
+
+  async skipMeal(familyId: string, mealPlanId: string) {
+    const mealPlan = await this.prisma.mealPlan.findFirst({
+      where: {
+        id: mealPlanId,
+        familyId,
+      },
+    });
+
+    if (!mealPlan) {
+      throw new NotFoundException('Meal plan not found');
+    }
+
+    if (mealPlan.isCooked) {
+      throw new BadRequestException('Meal already cooked');
+    }
+
+    if (mealPlan.isSkipped) {
+      return {
+        message: 'Meal already skipped',
+        mealPlan,
+      };
+    }
+
+    const updated = await this.prisma.mealPlan.update({
+      where: { id: mealPlanId },
+      data: {
+        isSkipped: true,
+        skippedAt: new Date(),
+      },
+    });
+
+    return {
+      message: 'Meal skipped successfully',
+      mealPlan: updated,
+    };
+  }
+
   /**
    * Helper: Знайти або створити продукти для інгредієнтів
    */
@@ -465,6 +709,60 @@ export class MealPlanService {
     }
 
     return productIds;
+  }
+
+  private async mapIngredientsToExistingProducts(
+    ingredients: Array<{ productId?: string; productName: string; amount: number; unit: string }>,
+  ): Promise<string[]> {
+    if (!ingredients.length) {
+      return [];
+    }
+
+    const byId = new Map<string, string>();
+    const byName = new Map<string, string>();
+
+    const products = await this.prisma.product.findMany({
+      where: {
+        familyMemberId: null,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    for (const p of products) {
+      byId.set(p.id, p.id);
+      byName.set(p.name.trim().toLowerCase(), p.id);
+    }
+
+    const unknown: Array<{ productId?: string; productName: string }> = [];
+    const mapped: string[] = [];
+
+    for (const ing of ingredients) {
+      if (ing.productId && byId.has(ing.productId)) {
+        mapped.push(ing.productId);
+        continue;
+      }
+
+      const id = byName.get((ing.productName || '').trim().toLowerCase());
+      if (id) {
+        mapped.push(id);
+        continue;
+      }
+
+      unknown.push({ productId: ing.productId, productName: ing.productName });
+    }
+
+    if (unknown.length > 0) {
+      throw new BadRequestException({
+        message:
+          'AI generated ingredients that are not present in products catalog. Please add these products to the database and retry.',
+        unknownIngredients: unknown,
+      });
+    }
+
+    return mapped;
   }
 
   /**

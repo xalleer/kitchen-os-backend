@@ -1,10 +1,10 @@
-
 import {
   IsInt,
   Min,
   IsOptional,
   IsDateString,
-  Max
+  Max,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -30,4 +30,10 @@ export class GetMealPlanQueryDto {
 export class RegenerateDayDto {
   @IsDateString()
   date: string;
+}
+
+export class CookMealPlanDto {
+  @IsOptional()
+  @IsBoolean()
+  addToShoppingList?: boolean;
 }

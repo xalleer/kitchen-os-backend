@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { WeeklyBudgetService } from '../weekly-budget/weekly-budget.service';
 import {
   AddToInventoryDto,
   UpdateInventoryItemDto,
@@ -8,7 +9,22 @@ import {
 
 @Injectable()
 export class InventoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private weeklyBudgetService: WeeklyBudgetService, // ⭐ НОВЕ
+  ) {}
+
+  private mapBudgetUpdate(
+    budgetUpdate: Awaited<ReturnType<WeeklyBudgetService['addExpense']>> | null,
+  ) {
+    if (!budgetUpdate) return null;
+
+    return {
+      spent: Number(budgetUpdate.weeklyBudget.spent),
+      remaining: Number(budgetUpdate.weeklyBudget.remaining),
+      isOverBudget: budgetUpdate.isOverBudget,
+    };
+  }
 
   async getInventory(familyId: string) {
     const items = await this.prisma.inventoryItem.findMany({
@@ -21,13 +37,13 @@ export class InventoryService {
             category: true,
             baseUnit: true,
             caloriesPer100: true,
-            image: true
-
+            image: true,
+            price: true, // ⭐ ДОДАНО для розрахунку
           },
         },
       },
       orderBy: [
-        { expiryDate: 'asc' }, // Продукти що швидше псуються - вгорі
+        { expiryDate: 'asc' },
         { createdAt: 'desc' },
       ],
     });
@@ -75,6 +91,24 @@ export class InventoryService {
       throw new NotFoundException('Product not found');
     }
 
+    // ⭐ НОВЕ: Розрахунок ціни покупки
+    let finalPurchasePrice: number | undefined = undefined;
+
+    if (dto.deductFromBudget) {
+      // Якщо користувач вказав ціну - використовуємо її
+      if (dto.purchasePrice !== undefined && dto.purchasePrice > 0) {
+        finalPurchasePrice = dto.purchasePrice;
+      } 
+      // Інакше - оцінюємо на основі ціни продукту з БД
+      else if (product.price && product.price > 0) {
+        finalPurchasePrice = this.estimatePrice(product.price, dto.quantity, product.baseUnit);
+      }
+      // Якщо немає ціни в БД - ставимо 0 (користувач може вручну підкоригувати)
+      else {
+        finalPurchasePrice = 0;
+      }
+    }
+
     const existingItem = await this.prisma.inventoryItem.findFirst({
       where: {
         familyId,
@@ -90,6 +124,10 @@ export class InventoryService {
         where: { id: existingItem.id },
         data: {
           quantity: existingItem.quantity + dto.quantity,
+          deductFromBudget: dto.deductFromBudget ?? existingItem.deductFromBudget,
+          purchasePrice: finalPurchasePrice !== undefined 
+            ? (existingItem.purchasePrice || 0) + finalPurchasePrice 
+            : existingItem.purchasePrice,
         },
         include: {
           product: {
@@ -98,18 +136,20 @@ export class InventoryService {
               name: true,
               category: true,
               baseUnit: true,
+              price: true,
             },
           },
         },
       });
     } else {
-      // Якщо немає - створюємо новий запис
       inventoryItem = await this.prisma.inventoryItem.create({
         data: {
           familyId,
           productId: dto.productId,
           quantity: dto.quantity,
           expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : null,
+          deductFromBudget: dto.deductFromBudget ?? false,
+          purchasePrice: finalPurchasePrice,
         },
         include: {
           product: {
@@ -118,13 +158,26 @@ export class InventoryService {
               name: true,
               category: true,
               baseUnit: true,
+              price: true,
             },
           },
         },
       });
     }
 
-    return inventoryItem;
+    // ⭐ НОВЕ: Вирахування з бюджету
+    let budgetUpdate: Awaited<ReturnType<WeeklyBudgetService['addExpense']>> | null = null;
+    if (dto.deductFromBudget && finalPurchasePrice && finalPurchasePrice > 0) {
+      budgetUpdate = await this.weeklyBudgetService.addExpense(
+        familyId,
+        finalPurchasePrice,
+      );
+    }
+
+    return {
+      item: inventoryItem,
+      budgetUpdate: this.mapBudgetUpdate(budgetUpdate),
+    };
   }
 
   async updateInventoryItem(
@@ -143,11 +196,34 @@ export class InventoryService {
       throw new NotFoundException('Inventory item not found');
     }
 
+    // ⭐ НОВЕ: Якщо змінюємо deductFromBudget - перераховуємо бюджет
+    let budgetUpdate: Awaited<ReturnType<WeeklyBudgetService['addExpense']>> | null = null;
+
+    // Якщо раніше було deductFromBudget=true, а тепер false - повертаємо гроші
+    if (item.deductFromBudget && dto.deductFromBudget === false && item.purchasePrice) {
+      await this.weeklyBudgetService.removeExpense(
+        familyId,
+        Number(item.purchasePrice),
+        item.createdAt,
+      );
+    }
+
+    // Якщо раніше було deductFromBudget=false, а тепер true - вираховуємо
+    if (!item.deductFromBudget && dto.deductFromBudget === true && dto.purchasePrice) {
+      budgetUpdate = await this.weeklyBudgetService.addExpense(
+        familyId,
+        dto.purchasePrice,
+        item.createdAt,
+      );
+    }
+
     const updatedItem = await this.prisma.inventoryItem.update({
       where: { id: itemId },
       data: {
         quantity: dto.quantity,
         expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : undefined,
+        deductFromBudget: dto.deductFromBudget,
+        purchasePrice: dto.purchasePrice,
       },
       include: {
         product: {
@@ -161,7 +237,10 @@ export class InventoryService {
       },
     });
 
-    return updatedItem;
+    return {
+      item: updatedItem,
+      budgetUpdate: this.mapBudgetUpdate(budgetUpdate),
+    };
   }
 
   async removeFromInventory(
@@ -227,6 +306,15 @@ export class InventoryService {
       throw new NotFoundException('Inventory item not found');
     }
 
+    // ⭐ НОВЕ: Якщо товар було вираховано з бюджету - повертаємо гроші
+    if (item.deductFromBudget && item.purchasePrice) {
+      await this.weeklyBudgetService.removeExpense(
+        familyId,
+        Number(item.purchasePrice),
+        item.createdAt,
+      );
+    }
+
     await this.prisma.inventoryItem.delete({
       where: { id: itemId },
     });
@@ -260,7 +348,6 @@ export class InventoryService {
       deducted: number;
       success: boolean;
     }> = [];
-
 
     for (const { productId, quantity } of products) {
       const items = await this.prisma.inventoryItem.findMany({
@@ -332,5 +419,17 @@ export class InventoryService {
     });
 
     return items;
+  }
+
+  // ⭐ НОВЕ: Helper для розрахунку ціни
+  private estimatePrice(pricePerUnit: number, quantity: number, unit: string): number {
+    if (unit === 'G' || unit === 'ML') {
+      // Ціна за 100г/100мл, розраховуємо пропорційно
+      return (quantity / 100) * pricePerUnit;
+    } else if (unit === 'PCS') {
+      // Ціна за штуку
+      return quantity * pricePerUnit;
+    }
+    return quantity * pricePerUnit;
   }
 }

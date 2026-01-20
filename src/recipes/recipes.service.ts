@@ -99,16 +99,26 @@ export class RecipesService {
 
     const productsMap = new Map(items.map((item) => [item.product.name, item.product]));
 
+    const unknownIngredients = aiRecipe.ingredients
+      .filter((ing) => !productsMap.has(ing.productName))
+      .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+
+    if (unknownIngredients.length > 0) {
+      throw new BadRequestException({
+        message:
+          'AI generated ingredients that are not present in your inventory products list. Please add them first and retry.',
+        unknownIngredients,
+      });
+    }
+
     return {
       ...aiRecipe,
       ingredients: aiRecipe.ingredients.map((ing) => ({
         ...ing,
         productId: productsMap.get(ing.productName)?.id || null,
-        available: productsMap.has(ing.productName),
+        available: true,
       })),
-      canCook: aiRecipe.ingredients.every((ing) =>
-        productsMap.has(ing.productName),
-      ),
+      canCook: true,
     };
   }
 
@@ -149,6 +159,19 @@ export class RecipesService {
       dietaryRestrictions: allAllergies,
       cuisine: dto.cuisine,
     });
+
+    const allowedNames = new Set(productNames);
+    const unknownIngredients = aiRecipe.ingredients
+      .filter((ing) => !allowedNames.has(ing.productName))
+      .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+
+    if (unknownIngredients.length > 0) {
+      throw new BadRequestException({
+        message:
+          'AI generated ingredients that are not present in selected products list. Please select/add these products and retry.',
+        unknownIngredients,
+      });
+    }
 
     const { items } = await this.inventoryService.getInventory(familyId);
     const inventoryMap = new Map(
@@ -213,6 +236,18 @@ export class RecipesService {
     const inventoryMap = new Map(
       items.map((item) => [item.product.name, item.quantity]),
     );
+
+    const unknownIngredients = aiRecipe.ingredients
+      .filter((ing) => !productsMap.has(ing.productName.toLowerCase()))
+      .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+
+    if (unknownIngredients.length > 0) {
+      throw new BadRequestException({
+        message:
+          'AI generated ingredients that are not present in products catalog. Please add these products to the database and retry.',
+        unknownIngredients,
+      });
+    }
 
     const missingProducts: string[] = [];
     const ingredientsWithAvailability = aiRecipe.ingredients.map((ing) => {
