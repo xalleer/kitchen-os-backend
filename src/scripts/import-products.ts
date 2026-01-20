@@ -72,6 +72,7 @@ async function bootstrap() {
     name: product.name.trim(),
     category: product.category || undefined,
     baseUnit: product.baseUnit as Unit,
+    price: typeof product.price === 'number' ? product.price : undefined,
     caloriesPer100: undefined, // Можна додати пізніше
     standardAmount: undefined, // Можна додати пізніше
     image: undefined, // Можна додати пізніше

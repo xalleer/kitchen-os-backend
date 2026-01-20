@@ -123,16 +123,30 @@ export class ProductsImportService {
       }
 
       // Формуємо дані для імпорту
-      const productsToImport = normalizedProducts.map((product) => ({
-        name: product.name.trim(),
-        category: product.category || undefined,
-        baseUnit: product.baseUnit as Unit,
-        caloriesPer100:
-          typeof product.caloriesPer100 === 'number' ? product.caloriesPer100 : undefined,
-        price: typeof product.price === 'number' ? product.price : undefined,
-        standardAmount: undefined,
-        image: undefined,
-      }));
+      const productsToImport = normalizedProducts.map((product, index) => {
+        const originalPrice = products[index]?.price;
+        const normalizedPrice = product.price;
+
+        const price =
+          typeof normalizedPrice === 'number' && Number.isFinite(normalizedPrice) && normalizedPrice > 0
+            ? normalizedPrice
+            : typeof originalPrice === 'number' && Number.isFinite(originalPrice) && originalPrice > 0
+              ? originalPrice
+              : undefined;
+
+        return {
+          name: product.name.trim(),
+          category: product.category || undefined,
+          baseUnit: product.baseUnit as Unit,
+          caloriesPer100:
+            typeof product.caloriesPer100 === 'number'
+              ? product.caloriesPer100
+              : undefined,
+          price,
+          standardAmount: undefined,
+          image: undefined,
+        };
+      });
 
       this.logger.log('🔄 Імпорт продуктів у базу даних...');
       const result = await this.productsService.seedProducts(productsToImport);
