@@ -1,3 +1,5 @@
+// src/inventory/dto/inventory.dto.ts - ОНОВЛЕНО
+
 import {
   IsString,
   IsNotEmpty,
@@ -29,6 +31,11 @@ export class AddToInventoryDto {
   @IsNumber()
   @Min(0)
   purchasePrice?: number;
+
+  // ⭐ НОВЕ: Магазин
+  @IsOptional()
+  @IsString()
+  retailer?: string;
 }
 
 export class UpdateInventoryItemDto {

@@ -6,13 +6,166 @@ import {
   UpdateInventoryItemDto,
   RemoveFromInventoryDto,
 } from './dto/inventory.dto';
+import { ProductPriceService } from '../products/product-price.service';
 
 @Injectable()
 export class InventoryService {
   constructor(
     private prisma: PrismaService,
-    private weeklyBudgetService: WeeklyBudgetService, // ⭐ НОВЕ
+    private weeklyBudgetService: WeeklyBudgetService,
+    private readonly productPriceService: ProductPriceService,
   ) {}
+
+  async addToInventory(familyId: string, dto: AddToInventoryDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: dto.productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // Розрахунок ціни покупки
+    let finalPurchasePrice: number | undefined = undefined;
+
+    if (dto.deductFromBudget) {
+      if (dto.purchasePrice !== undefined && dto.purchasePrice > 0) {
+        finalPurchasePrice = dto.purchasePrice;
+      } else if (product.averagePrice && product.averagePrice > 0) {
+        finalPurchasePrice = this.estimatePrice(
+          product.averagePrice,
+          dto.quantity,
+          product.baseUnit,
+        );
+      } else {
+        finalPurchasePrice = 0;
+      }
+    }
+
+    const existingItem = await this.prisma.inventoryItem.findFirst({
+      where: {
+        familyId,
+        productId: dto.productId,
+        expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : null,
+      },
+    });
+
+    let inventoryItem;
+
+    if (existingItem) {
+      inventoryItem = await this.prisma.inventoryItem.update({
+        where: { id: existingItem.id },
+        data: {
+          quantity: existingItem.quantity + dto.quantity,
+          deductFromBudget: dto.deductFromBudget ?? existingItem.deductFromBudget,
+          purchasePrice:
+            finalPurchasePrice !== undefined
+              ? (existingItem.purchasePrice || 0) + finalPurchasePrice
+              : existingItem.purchasePrice,
+        },
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              category: true,
+              baseUnit: true,
+              averagePrice: true,
+            },
+          },
+        },
+      });
+    } else {
+      inventoryItem = await this.prisma.inventoryItem.create({
+        data: {
+          familyId,
+          productId: dto.productId,
+          quantity: dto.quantity,
+          expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : null,
+          deductFromBudget: dto.deductFromBudget ?? false,
+          purchasePrice: finalPurchasePrice,
+        },
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              category: true,
+              baseUnit: true,
+              averagePrice: true,
+            },
+          },
+        },
+      });
+    }
+
+    // ⭐ НОВЕ: Записати ціну користувача для статистики
+    if (dto.purchasePrice && dto.purchasePrice > 0) {
+      const pricePerUnit = this.calculatePricePerUnit(
+        dto.purchasePrice,
+        dto.quantity,
+        product.baseUnit,
+      );
+
+      await this.productPriceService.recordUserPrice(
+        dto.productId,
+        familyId,
+        pricePerUnit,
+        dto.quantity,
+        undefined, // userId - можна додати пізніше
+        dto.retailer, // ⭐ Додати retailer в DTO
+        undefined, // region
+      );
+    }
+
+    // Вирахування з бюджету
+    let budgetUpdate: any = null;
+    if (dto.deductFromBudget && finalPurchasePrice && finalPurchasePrice > 0) {
+      budgetUpdate = await this.weeklyBudgetService.addExpense(
+        familyId,
+        finalPurchasePrice,
+      );
+    }
+
+    return {
+      item: inventoryItem,
+      budgetUpdate: this.mapBudgetUpdate(budgetUpdate),
+    };
+  }
+
+  /**
+   * ⭐ НОВЕ: Розрахувати ціну за одиницю (для 100г/100мл або за штуку)
+   */
+  private calculatePricePerUnit(
+    totalPrice: number,
+    quantity: number,
+    baseUnit: string,
+  ): number {
+    if (baseUnit === 'G' || baseUnit === 'ML') {
+      // Ціна за 100г/100мл
+      return (totalPrice / quantity) * 100;
+    } else if (baseUnit === 'PCS') {
+      // Ціна за штуку
+      return totalPrice / quantity;
+    }
+    return totalPrice / quantity;
+  }
+
+  /**
+   * Helper: Оцінити ціну
+   */
+  private estimatePrice(
+    pricePerUnit: number,
+    quantity: number,
+    unit: string,
+  ): number {
+    if (unit === 'G' || unit === 'ML') {
+      return (quantity / 100) * pricePerUnit;
+    } else if (unit === 'PCS') {
+      return quantity * pricePerUnit;
+    }
+    return quantity * pricePerUnit;
+  }
 
   private mapBudgetUpdate(
     budgetUpdate: Awaited<ReturnType<WeeklyBudgetService['addExpense']>> | null,
@@ -26,6 +179,7 @@ export class InventoryService {
     };
   }
 
+
   async getInventory(familyId: string) {
     const items = await this.prisma.inventoryItem.findMany({
       where: { familyId },
@@ -38,7 +192,7 @@ export class InventoryService {
             baseUnit: true,
             caloriesPer100: true,
             image: true,
-            price: true, // ⭐ ДОДАНО для розрахунку
+            averagePrice: true, // ⭐ ДОДАНО для розрахунку
           },
         },
       },
@@ -80,104 +234,6 @@ export class InventoryService {
     }
 
     return item;
-  }
-
-  async addToInventory(familyId: string, dto: AddToInventoryDto) {
-    const product = await this.prisma.product.findUnique({
-      where: { id: dto.productId },
-    });
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
-    // ⭐ НОВЕ: Розрахунок ціни покупки
-    let finalPurchasePrice: number | undefined = undefined;
-
-    if (dto.deductFromBudget) {
-      // Якщо користувач вказав ціну - використовуємо її
-      if (dto.purchasePrice !== undefined && dto.purchasePrice > 0) {
-        finalPurchasePrice = dto.purchasePrice;
-      } 
-      // Інакше - оцінюємо на основі ціни продукту з БД
-      else if (product.price && product.price > 0) {
-        finalPurchasePrice = this.estimatePrice(product.price, dto.quantity, product.baseUnit);
-      }
-      // Якщо немає ціни в БД - ставимо 0 (користувач може вручну підкоригувати)
-      else {
-        finalPurchasePrice = 0;
-      }
-    }
-
-    const existingItem = await this.prisma.inventoryItem.findFirst({
-      where: {
-        familyId,
-        productId: dto.productId,
-        expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : null,
-      },
-    });
-
-    let inventoryItem;
-
-    if (existingItem) {
-      inventoryItem = await this.prisma.inventoryItem.update({
-        where: { id: existingItem.id },
-        data: {
-          quantity: existingItem.quantity + dto.quantity,
-          deductFromBudget: dto.deductFromBudget ?? existingItem.deductFromBudget,
-          purchasePrice: finalPurchasePrice !== undefined 
-            ? (existingItem.purchasePrice || 0) + finalPurchasePrice 
-            : existingItem.purchasePrice,
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-              baseUnit: true,
-              price: true,
-            },
-          },
-        },
-      });
-    } else {
-      inventoryItem = await this.prisma.inventoryItem.create({
-        data: {
-          familyId,
-          productId: dto.productId,
-          quantity: dto.quantity,
-          expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : null,
-          deductFromBudget: dto.deductFromBudget ?? false,
-          purchasePrice: finalPurchasePrice,
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-              baseUnit: true,
-              price: true,
-            },
-          },
-        },
-      });
-    }
-
-    // ⭐ НОВЕ: Вирахування з бюджету
-    let budgetUpdate: Awaited<ReturnType<WeeklyBudgetService['addExpense']>> | null = null;
-    if (dto.deductFromBudget && finalPurchasePrice && finalPurchasePrice > 0) {
-      budgetUpdate = await this.weeklyBudgetService.addExpense(
-        familyId,
-        finalPurchasePrice,
-      );
-    }
-
-    return {
-      item: inventoryItem,
-      budgetUpdate: this.mapBudgetUpdate(budgetUpdate),
-    };
   }
 
   async updateInventoryItem(
@@ -421,15 +477,4 @@ export class InventoryService {
     return items;
   }
 
-  // ⭐ НОВЕ: Helper для розрахунку ціни
-  private estimatePrice(pricePerUnit: number, quantity: number, unit: string): number {
-    if (unit === 'G' || unit === 'ML') {
-      // Ціна за 100г/100мл, розраховуємо пропорційно
-      return (quantity / 100) * pricePerUnit;
-    } else if (unit === 'PCS') {
-      // Ціна за штуку
-      return quantity * pricePerUnit;
-    }
-    return quantity * pricePerUnit;
-  }
 }

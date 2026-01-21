@@ -10,32 +10,66 @@ import {
   UpdateProductDto,
   GetProductsQueryDto,
 } from './dto/products.dto';
-import { Unit } from '@prisma/client';
+import { BASIC_PRODUCTS_CATALOG } from './data/basic-products.catalog';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async seedProducts(products: CreateProductDto[]) {
+  /**
+   * ⭐ НОВЕ: Seed базового каталогу продуктів
+   */
+  async seedBasicCatalog() {
     let created = 0;
-    let skipped = 0;
+    let updated = 0;
 
-    for (const product of products) {
-      try {
-        await this.prisma.product.create({ data: product });
+    for (const item of BASIC_PRODUCTS_CATALOG) {
+      const result = await this.prisma.product.upsert({
+        where: { name: item.name },
+        create: {
+          name: item.name,
+          category: item.category,
+          baseUnit: item.baseUnit,
+          averagePrice: item.averagePrice,
+          caloriesPer100: item.caloriesPer100,
+          standardAmount: item.standardAmount,
+          image: item.image,
+          // Початкова статистика
+          minPrice: item.averagePrice,
+          maxPrice: item.averagePrice,
+          lastPrice: item.averagePrice,
+          priceSamplesCount: 1,
+        },
+        update: {
+          category: item.category,
+          baseUnit: item.baseUnit,
+          caloriesPer100: item.caloriesPer100,
+          standardAmount: item.standardAmount,
+          image: item.image,
+        },
+        select: { createdAt: true },
+      });
+
+      if (result.createdAt.getTime() >= Date.now() - 5_000) {
         created++;
-      } catch (e: any) {
-        if (e.code === 'P2002') {
-          skipped++;
-        } else {
-          throw e;
-        }
+      } else {
+        updated++;
       }
     }
 
-    return { created, skipped, total: products.length };
+    return {
+      success: true,
+      created,
+      skipped: 0,
+      updated,
+      total: BASIC_PRODUCTS_CATALOG.length,
+      message: `Створено ${created} продуктів, оновлено ${updated}`,
+    };
   }
 
+  /**
+   * Отримати список продуктів з пошуком та фільтрацією
+   */
   async getProducts(query: GetProductsQueryDto) {
     const { search, category, baseUnit, page = 1, limit = 50 } = query;
 
@@ -72,9 +106,13 @@ export class ProductsService {
           category: true,
           baseUnit: true,
           caloriesPer100: true,
-          price: true,
+          averagePrice: true,
+          minPrice: true,
+          maxPrice: true,
+          lastPrice: true,
+          priceSamplesCount: true,
           standardAmount: true,
-          image: true
+          image: true,
         },
       }),
       this.prisma.product.count({ where }),
@@ -91,6 +129,9 @@ export class ProductsService {
     };
   }
 
+  /**
+   * Отримати продукт за ID
+   */
   async getProductById(productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -100,10 +141,15 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
-        price: true,
+        averagePrice: true,
+        minPrice: true,
+        maxPrice: true,
+        lastPrice: true,
+        priceSamplesCount: true,
+        priceUpdatedAt: true,
         standardAmount: true,
         familyMemberId: true,
-        image: true
+        image: true,
       },
     });
 
@@ -114,6 +160,9 @@ export class ProductsService {
     return product;
   }
 
+  /**
+   * ⭐ ОНОВЛЕНО: Створити продукт (тепер з усіма полями!)
+   */
   async createProduct(dto: CreateProductDto) {
     const existingProduct = await this.prisma.product.findUnique({
       where: { name: dto.name },
@@ -129,8 +178,13 @@ export class ProductsService {
         category: dto.category,
         baseUnit: dto.baseUnit,
         caloriesPer100: dto.caloriesPer100,
-        price: dto.price,
+        averagePrice: dto.averagePrice,
+        minPrice: dto.averagePrice,
+        maxPrice: dto.averagePrice,
+        lastPrice: dto.averagePrice,
+        priceSamplesCount: 1,
         standardAmount: dto.standardAmount,
+        image: dto.image,
       },
       select: {
         id: true,
@@ -138,7 +192,7 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
-        price: true,
+        averagePrice: true,
         standardAmount: true,
       },
     });
@@ -146,6 +200,9 @@ export class ProductsService {
     return product;
   }
 
+  /**
+   * Оновити продукт
+   */
   async updateProduct(productId: string, dto: UpdateProductDto) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -178,7 +235,7 @@ export class ProductsService {
         category: true,
         baseUnit: true,
         caloriesPer100: true,
-        price: true,
+        averagePrice: true,
         standardAmount: true,
       },
     });
@@ -186,6 +243,9 @@ export class ProductsService {
     return updatedProduct;
   }
 
+  /**
+   * Видалити продукт
+   */
   async deleteProduct(productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -195,7 +255,6 @@ export class ProductsService {
         recipeIngredients: true,
       },
     });
-
 
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -222,6 +281,9 @@ export class ProductsService {
     return { message: 'Product deleted successfully' };
   }
 
+  /**
+   * Отримати категорії
+   */
   async getCategories() {
     const categories = await this.prisma.product.findMany({
       where: {
@@ -242,34 +304,46 @@ export class ProductsService {
       .filter((c): c is string => c !== null);
   }
 
-  async importProductsFromJson(filePath: string) {
-    const fs = require('fs');
-    const path = require('path');
+  /**
+   * ⭐ ДОДАНО: Метод для імпорту (для сумісності)
+   */
+  async seedProducts(products: CreateProductDto[]) {
+    let created = 0;
+    let updated = 0;
 
-    const jsonPath = path.resolve(filePath);
-    
-    if (!fs.existsSync(jsonPath)) {
-      throw new NotFoundException(`JSON file not found: ${jsonPath}`);
+    for (const product of products) {
+      const upserted = await this.prisma.product.upsert({
+        where: { name: product.name },
+        create: {
+          name: product.name,
+          category: product.category,
+          baseUnit: product.baseUnit,
+          averagePrice: product.averagePrice,
+          minPrice: product.averagePrice,
+          maxPrice: product.averagePrice,
+          lastPrice: product.averagePrice,
+          priceSamplesCount: 1,
+          caloriesPer100: product.caloriesPer100,
+          standardAmount: product.standardAmount,
+          image: product.image,
+        },
+        update: {
+          category: product.category,
+          baseUnit: product.baseUnit,
+          caloriesPer100: product.caloriesPer100,
+          standardAmount: product.standardAmount,
+          image: product.image,
+        },
+        select: { createdAt: true },
+      });
+
+      if (upserted.createdAt.getTime() >= Date.now() - 5_000) {
+        created++;
+      } else {
+        updated++;
+      }
     }
 
-    const fileContent = fs.readFileSync(jsonPath, 'utf-8');
-    const data = JSON.parse(fileContent);
-
-    const products = data.products || [];
-
-    if (products.length === 0) {
-      throw new BadRequestException('JSON file is empty or contains no products');
-    }
-
-    const productsToImport = products.map((product: any) => ({
-      name: product.name.trim(),
-      category: product.category || undefined,
-      baseUnit: product.baseUnit as Unit,
-      caloriesPer100: product.caloriesPer100 || undefined,
-      standardAmount: product.standardAmount || undefined,
-      image: product.image || undefined,
-    }));
-
-    return this.seedProducts(productsToImport);
+    return { created, skipped: 0, updated, total: products.length };
   }
 }

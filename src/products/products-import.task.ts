@@ -20,7 +20,7 @@ export class ProductsImportTask {
     
     if (result.success) {
       this.logger.log(
-        `✅ Автоматичний імпорт завершено: створено ${result.created}, пропущено ${result.skipped} з ${result.total} продуктів`,
+        `✅ Автоматичний імпорт завершено: створено ${result.created}, оновлено ${result.updated} з ${result.total} продуктів`,
       );
     } else {
       this.logger.error(`❌ Помилка автоматичного імпорту: ${result.error}`);

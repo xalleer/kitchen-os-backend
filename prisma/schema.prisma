@@ -191,20 +191,60 @@ model WeeklyBudget {
   @@index([familyId, weekStartDate])
 }
 
+// prisma/schema.prisma
+
+// Оновлена модель Product
 model Product {
   id                String             @id @default(uuid())
   name              String             @unique
   category          String?
   baseUnit          Unit
-  caloriesPer100    Float?
-  price             Float?
   image             String?
-  standardAmount    Float?
+  
+  averagePrice      Float              @default(0)    // Середня ціна
+  minPrice          Float?                             // Мінімальна ціна
+  maxPrice          Float?                             // Максимальна ціна
+  lastPrice         Float?                             // Остання ціна
+  priceUpdatedAt    DateTime           @default(now()) // Коли оновлювалась ціна
+  priceSamplesCount Int                @default(0)     // Кількість записів цін
+  
+  caloriesPer100    Float?
+  standardAmount    Float?             // Стандартна тара (1000мл, 500г)
+  
   inventoryItems    InventoryItem[]
   shoppingItems     ShoppingListItem[]
   recipeIngredients RecipeIngredient[]
+  userPrices        UserProductPrice[] // ⭐ НОВЕ
   FamilyMember      FamilyMember?      @relation(fields: [familyMemberId], references: [id])
   familyMemberId    String?
+  
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt @default(now())
+  
+  @@index([category])
+  @@index([name])
+}
+
+model UserProductPrice {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  familyId   String
+  userId     String?  // Опційно: хто додав
+  
+  price      Float    // Ціна за одиницю
+  quantity   Float    // Кількість
+  totalCost  Float?   // Загальна вартість (price * quantity)
+  
+  retailer   String?  
+  region     String?  
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([productId])
+  @@index([familyId])
+  @@index([createdAt])
 }
 
 model InventoryItem {

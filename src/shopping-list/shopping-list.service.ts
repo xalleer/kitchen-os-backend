@@ -128,7 +128,7 @@ export class ShoppingListService {
             needToBuy: 0,
             baseUnit: ingredient.product.baseUnit,
             estimatedPrice: 0,
-            pricePerUnit: ingredient.product.price,
+            pricePerUnit: ingredient.product.averagePrice,
           });
         }
       }
@@ -190,10 +190,11 @@ export class ShoppingListService {
           product: {
             select: {
               id: true,
-              name: true,
-              category: true,
-              baseUnit: true,
-              image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, 
+        image: true,
             },
           },
         },
@@ -234,11 +235,11 @@ export class ShoppingListService {
         product: {
           select: {
             id: true,
-            name: true,
-            category: true,
-            baseUnit: true,
-            price: true,
-            image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        image: true,
           },
         },
       },
@@ -250,11 +251,15 @@ export class ShoppingListService {
     });
 
     const estimatedCost = items.reduce((sum, item) => {
-      const price =
-        item.estimatedPrice ??
-        this.estimatePrice(item.product.price ?? null, item.quantity, item.product.baseUnit);
-      return sum + (price || 0);
-    }, 0);
+  const price =
+    item.estimatedPrice ??
+    this.estimatePrice(
+      item.product.averagePrice ?? null, // ⭐ ВИПРАВЛЕНО
+      item.quantity, 
+      item.product.baseUnit
+    );
+  return sum + (price || 0);
+}, 0);
 
     const family = await this.prisma.family.findUnique({
       where: { id: familyId },
@@ -370,10 +375,11 @@ export class ShoppingListService {
         product: {
           select: {
             id: true,
-            name: true,
-            category: true,
-            baseUnit: true,
-            image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        image: true,
           },
         },
       },
@@ -421,10 +427,11 @@ export class ShoppingListService {
         product: {
           select: {
             id: true,
-            name: true,
-            category: true,
-            baseUnit: true,
-            image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        image: true,
           },
         },
       },
@@ -576,10 +583,11 @@ export class ShoppingListService {
           product: {
             select: {
               id: true,
-              name: true,
-              category: true,
-              baseUnit: true,
-              image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        image: true,
             },
           },
         },
@@ -598,10 +606,11 @@ export class ShoppingListService {
           product: {
             select: {
               id: true,
-              name: true,
-              category: true,
-              baseUnit: true,
-              image: true,
+        name: true,
+        category: true,
+        baseUnit: true,
+        averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        image: true,
             },
           },
         },

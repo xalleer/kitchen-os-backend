@@ -29,7 +29,7 @@ export function buildMealPlanPrompt(params: MealPlanParams): string {
     .slice(0, 400)
     .map(
       (p) =>
-        `- ${p.id} | ${p.name} | unit=${p.baseUnit} | price=${p.price ?? 0} | standardAmount=${p.standardAmount ?? 0}`,
+        `- ${p.id} | ${p.name} | unit=${p.baseUnit} | price=${p.averagePrice ?? 0} | standardAmount=${p.standardAmount ?? 0}`,
     )
     .join('\n');
 

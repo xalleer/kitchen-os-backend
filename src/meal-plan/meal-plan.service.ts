@@ -51,14 +51,14 @@ export class MealPlanService {
         id: true,
         name: true,
         baseUnit: true,
-        price: true,
+        averagePrice: true,
         standardAmount: true,
       },
       orderBy: { name: 'asc' },
     });
 
     const allowedProductsById = new Map(
-      allowedProducts.map((p) => [p.id, { baseUnit: p.baseUnit, price: p.price }]),
+      allowedProducts.map((p) => [p.id, { baseUnit: p.baseUnit, averagePrice: p.averagePrice }]),
     );
 
     const aiParams: MealPlanParams = {
@@ -84,8 +84,6 @@ export class MealPlanService {
       throw new BadRequestException('Invalid AI response: days array is missing');
     }
 
-    // Якщо вказана конкретна дата - видаляємо тільки той день
-    // Інакше видаляємо весь план
     if (specificDate) {
       const startOfDay = new Date(specificDate);
       startOfDay.setHours(0, 0, 0, 0);
@@ -116,7 +114,6 @@ export class MealPlanService {
         continue;
       }
 
-      // Використовуємо вказану дату або дату з AI відповіді
       const dayDate = specificDate || new Date(day.date);
 
       for (const meal of day.meals) {
@@ -129,7 +126,7 @@ export class MealPlanService {
           if (!p) {
             continue;
           }
-          estimatedCost += this.estimatePrice(p.price ?? null, ing.amount, p.baseUnit);
+          estimatedCost += this.estimatePrice(p.averagePrice ?? null, ing.amount, p.baseUnit);
         }
 
         const recipe = await this.prisma.recipe.create({
@@ -321,7 +318,6 @@ export class MealPlanService {
       },
     });
 
-    // Очищаємо рецепти які більше не використовуються
     for (const meal of deletedMeals) {
       const usageCount = await this.prisma.mealPlan.count({
         where: { recipeId: meal.recipeId },
@@ -337,7 +333,6 @@ export class MealPlanService {
       }
     }
 
-    // ВИПРАВЛЕННЯ: передаємо specificDate, щоб не стерти весь план
     await this.generateMealPlan(familyId, 1, startOfDay);
 
     return this.getMealPlanForDay(familyId, date);

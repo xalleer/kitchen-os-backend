@@ -1,3 +1,5 @@
+// src/products/products.controller.ts - ОНОВЛЕНО
+
 import {
   Controller,
   Get,
@@ -12,7 +14,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { ProductsImportService } from './products-import.service';
+import { ProductPriceService } from './product-price.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   CreateProductDto,
@@ -25,8 +27,17 @@ import {
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
-    private readonly productsImportService: ProductsImportService,
+    private readonly productPriceService: ProductPriceService,
   ) {}
+
+  /**
+   * ⭐ НОВЕ: Seed базового каталогу
+   */
+  @Post('seed-basic')
+  @HttpCode(HttpStatus.OK)
+  async seedBasic() {
+    return this.productsService.seedBasicCatalog();
+  }
 
   @Get()
   getProducts(@Query() query: GetProductsQueryDto) {
@@ -43,6 +54,17 @@ export class ProductsController {
     return this.productsService.getProductById(id);
   }
 
+  /**
+   * ⭐ НОВЕ: Отримати статистику цін для продукту
+   */
+  @Get(':id/price-stats')
+  getPriceStats(@Param('id') id: string) {
+    return this.productPriceService.getProductPriceStats(id);
+  }
+
+  /**
+   * ⭐ ОНОВЛЕНО: Створити продукт (тепер з усіма полями)
+   */
   @Post()
   createProduct(@Body() dto: CreateProductDto) {
     return this.productsService.createProduct(dto);
@@ -57,15 +79,5 @@ export class ProductsController {
   @HttpCode(HttpStatus.OK)
   deleteProduct(@Param('id') id: string) {
     return this.productsService.deleteProduct(id);
-  }
-
-  @Post('seed')
-  async seed(@Body() products: CreateProductDto[]) {
-    return this.productsService.seedProducts(products);
-  }
-
-  @Post('import')
-  async importFromJson() {
-    return this.productsImportService.importProductsFromJson();
   }
 }

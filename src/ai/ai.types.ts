@@ -26,7 +26,7 @@ export interface AllowedProduct {
   id: string;
   name: string;
   baseUnit: 'G' | 'ML' | 'PCS';
-  price: number | null;
+  averagePrice: number | null; 
   standardAmount: number | null;
 }
 

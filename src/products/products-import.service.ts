@@ -30,7 +30,7 @@ export class ProductsImportService {
   async importProductsFromJson(): Promise<{
     success: boolean;
     created: number;
-    skipped: number;
+    updated: number;
     total: number;
     error?: string;
   }> {
@@ -43,7 +43,7 @@ export class ProductsImportService {
         return {
           success: false,
           created: 0,
-          skipped: 0,
+          updated: 0,
           total: 0,
           error: 'JSON файл не знайдено. Спочатку запустіть Python скрипт для парсингу продуктів.',
         };
@@ -62,7 +62,7 @@ export class ProductsImportService {
         return {
           success: false,
           created: 0,
-          skipped: 0,
+          updated: 0,
           total: 0,
           error: 'JSON файл містить старий формат або порожній. Будь ласка, запустіть Python скрипт для парсингу продуктів: cd example && python atb.py',
         };
@@ -73,7 +73,7 @@ export class ProductsImportService {
         return {
           success: false,
           created: 0,
-          skipped: 0,
+          updated: 0,
           total: 0,
           error: 'Невірний формат JSON файлу. Очікується об\'єкт з полем "products". Запустіть Python скрипт: cd example && python atb.py',
         };
@@ -84,7 +84,7 @@ export class ProductsImportService {
         return {
           success: false,
           created: 0,
-          skipped: 0,
+          updated: 0,
           total: 0,
           error: 'JSON файл не містить продуктів. Будь ласка, запустіть Python скрипт для парсингу продуктів: cd example && python atb.py',
         };
@@ -124,42 +124,42 @@ export class ProductsImportService {
 
       // Формуємо дані для імпорту
       const productsToImport = normalizedProducts.map((product, index) => {
-        const originalPrice = products[index]?.price;
-        const normalizedPrice = product.price;
+  const originalPrice = products[index]?.price;
+  const normalizedPrice = product.price;
 
-        const price =
-          typeof normalizedPrice === 'number' && Number.isFinite(normalizedPrice) && normalizedPrice > 0
-            ? normalizedPrice
-            : typeof originalPrice === 'number' && Number.isFinite(originalPrice) && originalPrice > 0
-              ? originalPrice
-              : undefined;
+  const price =
+    typeof normalizedPrice === 'number' && Number.isFinite(normalizedPrice) && normalizedPrice > 0
+      ? normalizedPrice
+      : typeof originalPrice === 'number' && Number.isFinite(originalPrice) && originalPrice > 0
+        ? originalPrice
+        : undefined;
 
-        return {
-          name: product.name.trim(),
-          category: product.category || undefined,
-          baseUnit: product.baseUnit as Unit,
-          caloriesPer100:
-            typeof product.caloriesPer100 === 'number'
-              ? product.caloriesPer100
-              : undefined,
-          price,
-          standardAmount: undefined,
-          image: undefined,
-        };
-      });
+  return {
+    name: product.name.trim(),
+    category: product.category || 'Інше',
+    baseUnit: product.baseUnit as Unit,
+    caloriesPer100:
+      typeof product.caloriesPer100 === 'number'
+        ? product.caloriesPer100
+        : undefined,
+    averagePrice: price || 0, // ⭐ ВИПРАВЛЕНО
+    standardAmount: undefined,
+    image: undefined,
+  };
+});
 
       this.logger.log('🔄 Імпорт продуктів у базу даних...');
       const result = await this.productsService.seedProducts(productsToImport);
 
       this.logger.log('✅ Імпорт завершено!');
       this.logger.log(`   - Створено: ${result.created}`);
-      this.logger.log(`   - Пропущено (вже існують): ${result.skipped}`);
+      this.logger.log(`   - Оновлено: ${result.updated}`);
       this.logger.log(`   - Всього: ${result.total}`);
 
       return {
         success: true,
         created: result.created,
-        skipped: result.skipped,
+        updated: result.updated,
         total: result.total,
       };
     } catch (error: any) {
@@ -167,7 +167,7 @@ export class ProductsImportService {
       return {
         success: false,
         created: 0,
-        skipped: 0,
+        updated: 0,
         total: 0,
         error: error.message,
       };

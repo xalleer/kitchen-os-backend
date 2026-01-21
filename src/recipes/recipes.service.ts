@@ -67,142 +67,148 @@ export class RecipesService {
     return recipe;
   }
 
-  async generateRecipeFromInventory(familyId: string, portions: number = 2) {
-    const { items } = await this.inventoryService.getInventory(familyId);
+async generateRecipeFromInventory(familyId: string, portions: number = 2) {
+  const { items } = await this.inventoryService.getInventory(familyId);
 
-    if (items.length === 0) {
-      throw new BadRequestException('No products in inventory');
-    }
-
-    const productNames = items.map((item) => item.product.name);
-
-    const familyMembers = await this.prisma.familyMember.findMany({
-      where: { familyId },
-      include: {
-        allergies: { select: { name: true } },
-      },
-    });
-
-    const allAllergies = [
-      ...new Set(
-        familyMembers.flatMap((member) =>
-          member.allergies.map((a) => a.name),
-        ),
-      ),
-    ];
-
-    const aiRecipe = await this.aiService.generateRecipe({
-      productNames,
-      portions,
-      dietaryRestrictions: allAllergies,
-    });
-
-    const productsMap = new Map(items.map((item) => [item.product.name, item.product]));
-
-    const unknownIngredients = aiRecipe.ingredients
-      .filter((ing) => !productsMap.has(ing.productName))
-      .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
-
-    if (unknownIngredients.length > 0) {
-      throw new BadRequestException({
-        message:
-          'AI generated ingredients that are not present in your inventory products list. Please add them first and retry.',
-        unknownIngredients,
-      });
-    }
-
-    return {
-      ...aiRecipe,
-      ingredients: aiRecipe.ingredients.map((ing) => ({
-        ...ing,
-        productId: productsMap.get(ing.productName)?.id || null,
-        available: true,
-      })),
-      canCook: true,
-    };
+  if (items.length === 0) {
+    throw new BadRequestException('No products in inventory');
   }
+
+  const productNames = items.map((item) => item.product.name);
+
+  const familyMembers = await this.prisma.familyMember.findMany({
+    where: { familyId },
+    include: {
+      allergies: { select: { name: true } },
+    },
+  });
+
+  const allAllergies = [
+    ...new Set(
+      familyMembers.flatMap((member) =>
+        member.allergies.map((a) => a.name),
+      ),
+    ),
+  ];
+
+  const aiRecipe = await this.aiService.generateRecipe({
+    productNames,
+    portions,
+    dietaryRestrictions: allAllergies,
+  });
+
+  const productsMap = new Map(items.map((item) => [item.product.name, item.product]));
+
+  const unknownIngredients = aiRecipe.ingredients
+    .filter((ing) => !productsMap.has(ing.productName))
+    .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+
+  if (unknownIngredients.length > 0) {
+    throw new BadRequestException({
+      message:
+        'AI generated ingredients that are not present in your inventory products list. Please add them first and retry.',
+      unknownIngredients,
+    });
+  }
+
+  // Отримуємо inventory з продуктами для перевірки доступності
+  const inventoryMap = new Map(
+    items.map((item) => [item.product.name, item.quantity]),
+  );
+
+  return {
+    ...aiRecipe,
+    ingredients: aiRecipe.ingredients.map((ing) => ({
+      ...ing,
+      productId: productsMap.get(ing.productName)?.id || null,
+      available: (inventoryMap.get(ing.productName) || 0) >= ing.amount,
+    })),
+    canCook: true,
+  };
+}
 
   async generateRecipeFromProducts(
-    familyId: string,
-    dto: GenerateRecipeDto,
-  ) {
-    const products = await this.prisma.product.findMany({
-      where: {
-        id: { in: dto.productIds },
-      },
-    });
+  familyId: string,
+  dto: GenerateRecipeDto,
+) {
+  const products = await this.prisma.product.findMany({
+    where: {
+      id: { in: dto.productIds },
+    },
+  });
 
-    if (products.length !== dto.productIds.length) {
-      throw new BadRequestException('Some products not found');
-    }
+  if (products.length !== dto.productIds.length) {
+    throw new BadRequestException('Some products not found');
+  }
 
-    const productNames = products.map((p) => p.name);
+  const productNames = products.map((p) => p.name);
 
-    const familyMembers = await this.prisma.familyMember.findMany({
-      where: { familyId },
-      include: {
-        allergies: { select: { name: true } },
-      },
-    });
+  const familyMembers = await this.prisma.familyMember.findMany({
+    where: { familyId },
+    include: {
+      allergies: { select: { name: true } },
+    },
+  });
 
-    const allAllergies = [
-      ...new Set(
-        familyMembers.flatMap((member) =>
-          member.allergies.map((a) => a.name),
-        ),
+  const allAllergies = [
+    ...new Set(
+      familyMembers.flatMap((member) =>
+        member.allergies.map((a) => a.name),
       ),
-    ];
+    ),
+  ];
 
-    const aiRecipe = await this.aiService.generateRecipe({
-      productNames,
-      portions: dto.portions,
-      dietaryRestrictions: allAllergies,
-      cuisine: dto.cuisine,
+  const aiRecipe = await this.aiService.generateRecipe({
+    productNames,
+    portions: dto.portions,
+    dietaryRestrictions: allAllergies,
+    cuisine: dto.cuisine,
+  });
+
+  const allowedNames = new Set(productNames);
+  const unknownIngredients = aiRecipe.ingredients
+    .filter((ing) => !allowedNames.has(ing.productName))
+    .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+
+  if (unknownIngredients.length > 0) {
+    throw new BadRequestException({
+      message:
+        'AI generated ingredients that are not present in selected products list. Please select/add these products and retry.',
+      unknownIngredients,
     });
+  }
 
-    const allowedNames = new Set(productNames);
-    const unknownIngredients = aiRecipe.ingredients
-      .filter((ing) => !allowedNames.has(ing.productName))
-      .map((ing) => ({ productName: ing.productName, amount: ing.amount, unit: ing.unit }));
+  // ⭐ ВИПРАВЛЕНО: отримуємо inventory з include
+  const inventory = await this.inventoryService.getInventory(familyId);
+  const inventoryMap = new Map(
+    inventory.items.map((item) => [item.product.name, item.quantity]),
+  );
 
-    if (unknownIngredients.length > 0) {
-      throw new BadRequestException({
-        message:
-          'AI generated ingredients that are not present in selected products list. Please select/add these products and retry.',
-        unknownIngredients,
-      });
+  const missingProducts: string[] = [];
+  const ingredientsWithAvailability = aiRecipe.ingredients.map((ing) => {
+    const product = products.find((p) => p.name === ing.productName);
+    const availableQty = inventoryMap.get(ing.productName) || 0;
+    const isAvailable = availableQty >= ing.amount;
+
+    if (!isAvailable) {
+      missingProducts.push(ing.productName);
     }
-
-    const { items } = await this.inventoryService.getInventory(familyId);
-    const inventoryMap = new Map(
-      items.map((item) => [item.product.name, item.quantity]),
-    );
-
-    const missingProducts: string[] = [];
-    const ingredientsWithAvailability = aiRecipe.ingredients.map((ing) => {
-      const product = products.find((p) => p.name === ing.productName);
-      const availableQty = inventoryMap.get(ing.productName) || 0;
-      const isAvailable = availableQty >= ing.amount;
-
-      if (!isAvailable) {
-        missingProducts.push(ing.productName);
-      }
-
-      return {
-        ...ing,
-        productId: product?.id || null,
-        available: isAvailable,
-        availableQuantity: availableQty,
-      };
-    });
 
     return {
-      ...aiRecipe,
-      ingredients: ingredientsWithAvailability,
-      canCook: missingProducts.length === 0,
-      missingProducts,
+      ...ing,
+      productId: product?.id || null,
+      available: isAvailable,
+      availableQuantity: availableQty,
     };
-  }
+  });
+
+  return {
+    ...aiRecipe,
+    ingredients: ingredientsWithAvailability,
+    canCook: missingProducts.length === 0,
+    missingProducts,
+  };
+}
 
   async generateCustomRecipe(familyId: string, dto: GenerateCustomRecipeDto) {
     const familyMembers = await this.prisma.familyMember.findMany({

@@ -16,31 +16,29 @@ export class CreateProductDto {
   @IsNotEmpty()
   name: string;
 
-  @IsOptional()
   @IsString()
-  category?: string;
+  @IsNotEmpty()
+  category: string;
 
   @IsEnum(Unit)
   baseUnit: Unit;
 
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @IsOptional()
   @IsNumber()
   @Min(0)
-  caloriesPer100?: number;
+  averagePrice: number;
 
-  @IsOptional()
   @IsNumber()
   @Min(0)
-  price?: number;
+  caloriesPer100: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   standardAmount?: number;
+
+  @IsOptional()
+  @IsString()
+  image?: string;
 }
 
 export class UpdateProductDto {
@@ -65,7 +63,7 @@ export class UpdateProductDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  price?: number;
+  averagePrice?: number;
 
   @IsOptional()
   @IsNumber()

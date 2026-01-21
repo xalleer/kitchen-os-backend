@@ -84,14 +84,12 @@ export class FamilyInvitesService {
     );
 
     for (const member of family.members) {
-      // Пропускаємо якщо вже є зв'язаний користувач
       if (member.userId) {
         continue;
       }
 
       const existingInvite = existingByMemberId.get(member.id);
 
-      // Якщо вже є інвайт - повертаємо існуючий
       if (existingInvite) {
         invites.push({
           memberId: member.id,
@@ -160,12 +158,10 @@ export class FamilyInvitesService {
       throw new NotFoundException('Invite code not found');
     }
 
-    // Перевірка терміну дії
     if (invite.expiresAt && invite.expiresAt < new Date()) {
       throw new BadRequestException('Invite code has expired');
     }
 
-    // Перевірка чи вже використаний
     if (invite.usedAt) {
       throw new BadRequestException('Invite code has already been used');
     }
@@ -214,9 +210,7 @@ export class FamilyInvitesService {
       throw new BadRequestException('Invite code has already been used');
     }
 
-    // Транзакція: оновлюємо invite, member і user
     await this.prisma.$transaction(async (prisma) => {
-      // Оновлюємо інвайт
       await prisma.familyInvite.update({
         where: { id: invite.id },
         data: {
@@ -225,7 +219,6 @@ export class FamilyInvitesService {
         },
       });
 
-      // Прив'язуємо користувача до member
       await prisma.familyMember.update({
         where: { id: invite.familyMemberId },
         data: {
@@ -233,7 +226,6 @@ export class FamilyInvitesService {
         },
       });
 
-      // Оновлюємо familyId у користувача
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -287,8 +279,7 @@ export class FamilyInvitesService {
    * Генерувати унікальний 8-символьний код
    */
   private generateUniqueCode(): string {
-    // Формат: XXXX-XXXX (8 символів + дефіс)
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Без O, 0, I, 1 для зручності
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
 
     for (let i = 0; i < 8; i++) {

@@ -1,0 +1,3047 @@
+[
+  {
+    "title": "Яблука червоні",
+    "category": "овочі та фрукти",
+    "price": 22,
+    "calories": 55,
+    "unit": "KG"
+  },
+  {
+    "title": "Яблука зелені",
+    "category": "овочі та фрукти",
+    "price": 24,
+    "calories": 53,
+    "unit": "KG"
+  },
+  {
+    "title": "Банани",
+    "category": "овочі та фрукти",
+    "price": 59.8,
+    "calories": 89,
+    "unit": "PCS"
+  },
+  {
+    "title": "Апельсини",
+    "category": "овочі та фрукти",
+    "price": 62.3,
+    "calories": 47,
+    "unit": "KG"
+  },
+  {
+    "title": "Мандарини",
+    "category": "овочі та фрукти",
+    "price": 40,
+    "calories": 53,
+    "unit": "PCS"
+  },
+  {
+    "title": "Груша",
+    "category": "овочі та фрукти",
+    "price": 83.1,
+    "calories": 57,
+    "unit": "KG"
+  },
+  {
+    "title": "Ананас свіжий",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 50,
+    "unit": "PCS"
+  },
+  {
+    "title": "Ананас консервований",
+    "category": "овочі та фрукти",
+    "price": 25,
+    "calories": 60,
+    "unit": "L"
+  },
+  {
+    "title": "Виноград зелений",
+    "category": "овочі та фрукти",
+    "price": 80,
+    "calories": 69,
+    "unit": "PCS"
+  },
+  {
+    "title": "Виноград червоний",
+    "category": "овочі та фрукти",
+    "price": 75,
+    "calories": 67,
+    "unit": "PCS"
+  },
+  {
+    "title": "Лимон",
+    "category": "овочі та фрукти",
+    "price": 98.89,
+    "calories": 29,
+    "unit": "PCS"
+  },
+  {
+    "title": "Лайм",
+    "category": "овочі та фрукти",
+    "price": 15.0,
+    "calories": 30,
+    "unit": "PCS"
+  },
+  {
+    "title": "Ківі",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 61,
+    "unit": "PCS"
+  },
+  {
+    "title": "Персики свіжі",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 39,
+    "unit": "KG"
+  },
+  {
+    "title": "Консервовані персики",
+    "category": "бакалія",
+    "price": 40,
+    "calories": 60,
+    "unit": "PCS"
+  },
+  {
+    "title": "Сливи свіжі",
+    "category": "овочі та фрукти",
+    "price": 89.95,
+    "calories": 46,
+    "unit": "KG"
+  },
+  {
+    "title": "Сушені сливи",
+    "category": "овочі та фрукти",
+    "price": 150.0,
+    "calories": 240,
+    "unit": "PCS"
+  },
+  {
+    "title": "Сливи сушені без кісточок",
+    "category": "овочі та фрукти",
+    "price": 160.0,
+    "calories": 240,
+    "unit": "PCS"
+  },
+  {
+    "title": "Абрикоси свіжі",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 48,
+    "unit": "PCS"
+  },
+  {
+    "title": "Манго",
+    "category": "овочі та фрукти",
+    "price": 50.0,
+    "calories": 60,
+    "unit": "PCS"
+  },
+  {
+    "title": "Папая",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 59,
+    "unit": "PCS"
+  },
+  {
+    "title": "Гранат",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 83,
+    "unit": "PCS"
+  },
+  {
+    "title": "Полуниця свіжа",
+    "category": "овочі та фрукти",
+    "price": 70,
+    "calories": 32,
+    "unit": "PCS"
+  },
+  {
+    "title": "Полуниця заморожена",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 32,
+    "unit": "PCS"
+  },
+  {
+    "title": "Малина свіжа",
+    "category": "овочі та фрукти",
+    "price": 160,
+    "calories": 52,
+    "unit": "PCS"
+  },
+  {
+    "title": "Малина заморожена",
+    "category": "овочі та фрукти",
+    "price": 180,
+    "calories": 52,
+    "unit": "PCS"
+  },
+  {
+    "title": "Малиновий джем",
+    "category": "овочі та фрукти",
+    "price": 120,
+    "calories": 250,
+    "unit": "L"
+  },
+  {
+    "title": "Малиновий йогурт",
+    "category": "молочна продукція та яйця",
+    "price": 45,
+    "calories": 100,
+    "unit": "L"
+  },
+  {
+    "title": "Чорниця свіжа",
+    "category": "овочі та фрукти",
+    "price": 150,
+    "calories": 57,
+    "unit": "PCS"
+  },
+  {
+    "title": "Чорниця заморожена",
+    "category": "овочі та фрукти",
+    "price": 120,
+    "calories": 57,
+    "unit": "PCS"
+  },
+  {
+    "title": "Чорничний сок",
+    "category": "напої",
+    "price": 80,
+    "calories": 45,
+    "unit": "L"
+  },
+  {
+    "title": "Ожина свіжоморожена",
+    "category": "овочі та фрукти",
+    "price": 150.0,
+    "calories": 43,
+    "unit": "PCS"
+  },
+  {
+    "title": "Диня",
+    "category": "овочі та фрукти",
+    "price": 46.7,
+    "calories": 34,
+    "unit": "KG"
+  },
+  {
+    "title": "Кавун",
+    "category": "овочі та фрукти",
+    "price": 16.9,
+    "calories": 30,
+    "unit": "KG"
+  },
+  {
+    "title": "Фініки сушені",
+    "category": "овочі та фрукти",
+    "price": 200,
+    "calories": 277,
+    "unit": "PCS"
+  },
+  {
+    "title": "Фініки марокканські",
+    "category": "овочі та фрукти",
+    "price": 250,
+    "calories": 277,
+    "unit": "PCS"
+  },
+  {
+    "title": "Фініки Меджул",
+    "category": "овочі та фрукти",
+    "price": 300,
+    "calories": 277,
+    "unit": "PCS"
+  },
+  {
+    "title": "Інжир свіжий",
+    "category": "овочі та фрукти",
+    "price": 29.9,
+    "calories": 74,
+    "unit": "PCS"
+  },
+  {
+    "title": "Інжир сушений",
+    "category": "овочі та фрукти",
+    "price": 150,
+    "calories": 249,
+    "unit": "PCS"
+  },
+  {
+    "title": "Авокадо",
+    "category": "овочі та фрукти",
+    "price": 89.9,
+    "calories": 160,
+    "unit": "PCS"
+  },
+  {
+    "title": "Свіжий кокос",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 354,
+    "unit": "PCS"
+  },
+  {
+    "title": "Кокосова стружка",
+    "category": "овочі та фрукти",
+    "price": 100,
+    "calories": 660,
+    "unit": "PCS"
+  },
+  {
+    "title": "Кокосове молоко",
+    "category": "напої",
+    "price": 80,
+    "calories": 230,
+    "unit": "L"
+  },
+  {
+    "title": "Кокосове масло",
+    "category": "бакалія",
+    "price": 150,
+    "calories": 900,
+    "unit": "PCS"
+  },
+  {
+    "title": "Грейпфрут",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 42,
+    "unit": "PCS"
+  },
+  {
+    "title": "Суміш заморожених ягід",
+    "category": "овочі та фрукти",
+    "price": 100,
+    "calories": 50,
+    "unit": "PCS"
+  },
+  {
+    "title": "Суміш свіжих ягід",
+    "category": "овочі та фрукти",
+    "price": 150,
+    "calories": 60,
+    "unit": "PCS"
+  },
+  {
+    "title": "Суміш сушених ягід",
+    "category": "овочі та фрукти",
+    "price": 200,
+    "calories": 300,
+    "unit": "PCS"
+  },
+  {
+    "title": "Картопля звичайна",
+    "category": "овочі та фрукти",
+    "price": 13.8,
+    "calories": 77,
+    "unit": "KG"
+  },
+  {
+    "title": "Картопля молода",
+    "category": "овочі та фрукти",
+    "price": 14.35,
+    "calories": 60,
+    "unit": "KG"
+  },
+  {
+    "title": "Картопля фрі заморожена",
+    "category": "овочі та фрукти",
+    "price": 50.0,
+    "calories": 312,
+    "unit": "KG"
+  },
+  {
+    "title": "Морква свіжа",
+    "category": "овочі та фрукти",
+    "price": 9.89,
+    "calories": 41,
+    "unit": "PCS"
+  },
+  {
+    "title": "Помідори черрі",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 18,
+    "unit": "PCS"
+  },
+  {
+    "title": "Помідори звичайні",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 20,
+    "unit": "PCS"
+  },
+  {
+    "title": "Помідори салатні",
+    "category": "овочі та фрукти",
+    "price": 40,
+    "calories": 22,
+    "unit": "PCS"
+  },
+  {
+    "title": "Огірки свіжі",
+    "category": "овочі та фрукти",
+    "price": 20.0,
+    "calories": 16,
+    "unit": "PCS"
+  },
+  {
+    "title": "Огірки мариновані",
+    "category": "овочі та фрукти",
+    "price": 35.0,
+    "calories": 12,
+    "unit": "PCS"
+  },
+  {
+    "title": "Огірки солоні",
+    "category": "овочі та фрукти",
+    "price": 30.0,
+    "calories": 18,
+    "unit": "PCS"
+  },
+  {
+    "title": "Капуста білокачанна",
+    "category": "овочі та фрукти",
+    "price": 10.0,
+    "calories": 25,
+    "unit": "KG"
+  },
+  {
+    "title": "Капуста червонокачанна",
+    "category": "овочі та фрукти",
+    "price": 24.96,
+    "calories": 31,
+    "unit": "KG"
+  },
+  {
+    "title": "Капуста савойська",
+    "category": "овочі та фрукти",
+    "price": 15.0,
+    "calories": 27,
+    "unit": "KG"
+  },
+  {
+    "title": "Капуста пекінська",
+    "category": "овочі та фрукти",
+    "price": 20.7,
+    "calories": 16,
+    "unit": "KG"
+  },
+  {
+    "title": "Броколі свіжі",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 34,
+    "unit": "PCS"
+  },
+  {
+    "title": "Броколі заморожені",
+    "category": "овочі та фрукти",
+    "price": 40,
+    "calories": 34,
+    "unit": "PCS"
+  },
+  {
+    "title": "Цвітна капуста",
+    "category": "овочі та фрукти",
+    "price": 129.89,
+    "calories": 25,
+    "unit": "PCS"
+  },
+  {
+    "title": "Шпинат свіжий",
+    "category": "овочі та фрукти",
+    "price": 50,
+    "calories": 23,
+    "unit": "PCS"
+  },
+  {
+    "title": "Салат-латук",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 15,
+    "unit": "PCS"
+  },
+  {
+    "title": "Салат-латук ромен",
+    "category": "овочі та фрукти",
+    "price": 35,
+    "calories": 14,
+    "unit": "PCS"
+  },
+  {
+    "title": "Салат-латук багет",
+    "category": "овочі та фрукти",
+    "price": 40,
+    "calories": 16,
+    "unit": "PCS"
+  },
+  {
+    "title": "Зелена цибуля",
+    "category": "овочі та фрукти",
+    "price": 25,
+    "calories": 32,
+    "unit": "PCS"
+  },
+  {
+    "title": "Ріпчаста цибуля",
+    "category": "овочі та фрукти",
+    "price": 20,
+    "calories": 40,
+    "unit": "KG"
+  },
+  {
+    "title": "Часник свіжий",
+    "category": "овочі та фрукти",
+    "price": 60,
+    "calories": 149,
+    "unit": "PCS"
+  },
+  {
+    "title": "Часник сушений",
+    "category": "овочі та фрукти",
+    "price": 150,
+    "calories": 331,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець солодкий червоний",
+    "category": "овочі та фрукти",
+    "price": 225.89,
+    "calories": 20,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець солодкий жовтий",
+    "category": "овочі та фрукти",
+    "price": 229.95,
+    "calories": 20,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець солодкий зелений",
+    "category": "овочі та фрукти",
+    "price": 22.0,
+    "calories": 20,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець гострий свіжий",
+    "category": "овочі та фрукти",
+    "price": 60.0,
+    "calories": 40,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець чилі сушений",
+    "category": "овочі та фрукти",
+    "price": 150.0,
+    "calories": 337,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перець халапеньо консервований",
+    "category": "овочі та фрукти",
+    "price": 80.0,
+    "calories": 24,
+    "unit": "L"
+  },
+  {
+    "title": "Баклажани",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 24,
+    "unit": "PCS"
+  },
+  {
+    "title": "Кабачки свіжі",
+    "category": "овочі та фрукти",
+    "price": 109.89,
+    "calories": 18,
+    "unit": "KG"
+  },
+  {
+    "title": "Кабачки консервовані",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 20,
+    "unit": "L"
+  },
+  {
+    "title": "Гарбуз",
+    "category": "овочі та фрукти",
+    "price": 10.0,
+    "calories": 26,
+    "unit": "KG"
+  },
+  {
+    "title": "Кріп",
+    "category": "овочі та фрукти",
+    "price": 206.96,
+    "calories": 36,
+    "unit": "KG"
+  },
+  {
+    "title": "Петрушка",
+    "category": "овочі та фрукти",
+    "price": 175.76,
+    "calories": 36,
+    "unit": "KG"
+  },
+  {
+    "title": "Кінза",
+    "category": "овочі та фрукти",
+    "price": 175.76,
+    "calories": 23,
+    "unit": "KG"
+  },
+  {
+    "title": "Лук зелений",
+    "category": "овочі та фрукти",
+    "price": 15.0,
+    "calories": 32,
+    "unit": "KG"
+  },
+  {
+    "title": "Салат",
+    "category": "овочі та фрукти",
+    "price": 18.0,
+    "calories": 14,
+    "unit": "KG"
+  },
+  {
+    "title": "Гриби печериці",
+    "category": "овочі та фрукти",
+    "price": 84.6,
+    "calories": 22,
+    "unit": "KG"
+  },
+  {
+    "title": "Гриби білі",
+    "category": "овочі та фрукти",
+    "price": 84.6,
+    "calories": 25,
+    "unit": "KG"
+  },
+  {
+    "title": "Гриби сушені",
+    "category": "овочі та фрукти",
+    "price": 300.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Зелений горошок консервований",
+    "category": "овочі та фрукти",
+    "price": 52.9,
+    "calories": 80,
+    "unit": "KG"
+  },
+  {
+    "title": "Зелений горошок заморожений",
+    "category": "овочі та фрукти",
+    "price": 52.9,
+    "calories": 70,
+    "unit": "KG"
+  },
+  {
+    "title": "Зелений горошок свіжий",
+    "category": "овочі та фрукти",
+    "price": 52.9,
+    "calories": 81,
+    "unit": "KG"
+  },
+  {
+    "title": "Консервована кукурудза",
+    "category": "овочі та фрукти",
+    "price": 52.9,
+    "calories": 96,
+    "unit": "KG"
+  },
+  {
+    "title": "Заморожена кукурудза",
+    "category": "овочі та фрукти",
+    "price": 45,
+    "calories": 86,
+    "unit": "KG"
+  },
+  {
+    "title": "Редис червоний",
+    "category": "овочі та фрукти",
+    "price": 30,
+    "calories": 16,
+    "unit": "KG"
+  },
+  {
+    "title": "Редис білий",
+    "category": "овочі та фрукти",
+    "price": 49.9,
+    "calories": 16,
+    "unit": "KG"
+  },
+  {
+    "title": "Буряк свіжий",
+    "category": "овочі та фрукти",
+    "price": 7.9,
+    "calories": 43,
+    "unit": "KG"
+  },
+  {
+    "title": "Буряк маринований",
+    "category": "овочі та фрукти",
+    "price": 53.89,
+    "calories": 45,
+    "unit": "KG"
+  },
+  {
+    "title": "Селера коренева",
+    "category": "овочі та фрукти",
+    "price": 43.16,
+    "calories": 42,
+    "unit": "KG"
+  },
+  {
+    "title": "Селера стеблова",
+    "category": "овочі та фрукти",
+    "price": 25,
+    "calories": 16,
+    "unit": "KG"
+  },
+  {
+    "title": "Селера листова",
+    "category": "овочі та фрукти",
+    "price": 62.4,
+    "calories": 14,
+    "unit": "KG"
+  },
+  {
+    "title": "Спаржа свіжа",
+    "category": "овочі та фрукти",
+    "price": 150,
+    "calories": 20,
+    "unit": "KG"
+  },
+  {
+    "title": "Спаржа консервована",
+    "category": "овочі та фрукти",
+    "price": 120,
+    "calories": 25,
+    "unit": "L"
+  },
+  {
+    "title": "Спаржа заморожена",
+    "category": "овочі та фрукти",
+    "price": 765.0,
+    "calories": 22,
+    "unit": "KG"
+  },
+  {
+    "title": "Руккола",
+    "category": "овочі та фрукти",
+    "price": 35.0,
+    "calories": 25,
+    "unit": "KG"
+  },
+  {
+    "title": "Молоко 1,5% жирності",
+    "category": "молочна продукція та яйця",
+    "price": 30.0,
+    "calories": 46,
+    "unit": "L"
+  },
+  {
+    "title": "Молоко 2,5% жирності",
+    "category": "молочна продукція та яйця",
+    "price": 32.0,
+    "calories": 50,
+    "unit": "L"
+  },
+  {
+    "title": "Молоко 3,2% жирності",
+    "category": "молочна продукція та яйця",
+    "price": 34.0,
+    "calories": 64,
+    "unit": "L"
+  },
+  {
+    "title": "Молоко безлактозне",
+    "category": "молочна продукція та яйця",
+    "price": 59.9,
+    "calories": 42,
+    "unit": "L"
+  },
+  {
+    "title": "Молоко ультрапастеризоване 1.5%",
+    "category": "молочна продукція та яйця",
+    "price": 36.9,
+    "calories": 46,
+    "unit": "L"
+  },
+  {
+    "title": "Молоко ультрапастеризоване 3.2%",
+    "category": "молочна продукція та яйця",
+    "price": 36.9,
+    "calories": 64,
+    "unit": "L"
+  },
+  {
+    "title": "Кефір 1%",
+    "category": "молочна продукція та яйця",
+    "price": 32.5,
+    "calories": 40,
+    "unit": "L"
+  },
+  {
+    "title": "Кефір 2.5%",
+    "category": "молочна продукція та яйця",
+    "price": 32.5,
+    "calories": 60,
+    "unit": "L"
+  },
+  {
+    "title": "Кефір 3.2%",
+    "category": "молочна продукція та яйця",
+    "price": 32.5,
+    "calories": 70,
+    "unit": "L"
+  },
+  {
+    "title": "Йогурт натуральний 3.5%",
+    "category": "молочна продукція та яйця",
+    "price": 35.0,
+    "calories": 70,
+    "unit": "KG"
+  },
+  {
+    "title": "Йогурт злаковий 1.5%",
+    "category": "молочна продукція та яйця",
+    "price": 30.0,
+    "calories": 50,
+    "unit": "KG"
+  },
+  {
+    "title": "Йогурт безлактозний 2%",
+    "category": "молочна продукція та яйця",
+    "price": 40.0,
+    "calories": 55,
+    "unit": "KG"
+  },
+  {
+    "title": "Йогурт дієтичний з ягід",
+    "category": "молочна продукція та яйця",
+    "price": 31.1,
+    "calories": 65,
+    "unit": "KG"
+  },
+  {
+    "title": "Йогурт грецький 10%",
+    "category": "молочна продукція та яйця",
+    "price": 50.0,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Йогурт малиновий",
+    "category": "молочна продукція та яйця",
+    "price": 32.0,
+    "calories": 75,
+    "unit": "KG"
+  },
+  {
+    "title": "Сметана 15%",
+    "category": "молочна продукція та яйця",
+    "price": 35.0,
+    "calories": 150,
+    "unit": "KG"
+  },
+  {
+    "title": "Сметана 20%",
+    "category": "молочна продукція та яйця",
+    "price": 40.0,
+    "calories": 200,
+    "unit": "KG"
+  },
+  {
+    "title": "Сметана 25%",
+    "category": "молочна продукція та яйця",
+    "price": 45.0,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Сметана 10%",
+    "category": "молочна продукція та яйця",
+    "price": 30.0,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Творог 5%",
+    "category": "молочна продукція та яйця",
+    "price": 55,
+    "calories": 98,
+    "unit": "KG"
+  },
+  {
+    "title": "Творог 9%",
+    "category": "молочна продукція та яйця",
+    "price": 60,
+    "calories": 136,
+    "unit": "KG"
+  },
+  {
+    "title": "Творог 0% (обезжирений)",
+    "category": "молочна продукція та яйця",
+    "price": 50,
+    "calories": 67,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир твердий Гауда",
+    "category": "молочна продукція та яйця",
+    "price": 150,
+    "calories": 356,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир твердий Чеддер",
+    "category": "молочна продукція та яйця",
+    "price": 98.9,
+    "calories": 402,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир твердий Пармезан",
+    "category": "молочна продукція та яйця",
+    "price": 250,
+    "calories": 431,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир твердий Едам",
+    "category": "молочна продукція та яйця",
+    "price": 180,
+    "calories": 357,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир твердий Фета",
+    "category": "молочна продукція та яйця",
+    "price": 140,
+    "calories": 264,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир Гауда",
+    "category": "молочна продукція та яйця",
+    "price": 120.0,
+    "calories": 356,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир Чеддер",
+    "category": "молочна продукція та яйця",
+    "price": 150.0,
+    "calories": 403,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир Пармезан",
+    "category": "молочна продукція та яйця",
+    "price": 200.0,
+    "calories": 431,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир Маасдам",
+    "category": "молочна продукція та яйця",
+    "price": 130.0,
+    "calories": 380,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир Фета",
+    "category": "молочна продукція та яйця",
+    "price": 180.0,
+    "calories": 264,
+    "unit": "KG"
+  },
+  {
+    "title": "Сир плавлений",
+    "category": "молочна продукція та яйця",
+    "price": 50.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Крем-сир",
+    "category": "молочна продукція та яйця",
+    "price": 76.3,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Вершкове масло 73% жиру",
+    "category": "молочна продукція та яйця",
+    "price": 90.4,
+    "calories": 745,
+    "unit": "KG"
+  },
+  {
+    "title": "Вершкове масло 82% жиру",
+    "category": "молочна продукція та яйця",
+    "price": 90.4,
+    "calories": 750,
+    "unit": "KG"
+  },
+  {
+    "title": "Молоко",
+    "category": "молочна продукція та яйця",
+    "price": 45,
+    "calories": 65,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдальний напій",
+    "category": "молочна продукція та яйця",
+    "price": 95.6,
+    "calories": 30,
+    "unit": "L"
+  },
+  {
+    "title": "Рис білий",
+    "category": "бакалія",
+    "price": 1942.92,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Рис пропарений",
+    "category": "бакалія",
+    "price": 46.9,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Крупа гречана несмажена",
+    "category": "бакалія",
+    "price": 44.9,
+    "calories": 343,
+    "unit": "KG"
+  },
+  {
+    "title": "Крупа гречана смажена",
+    "category": "бакалія",
+    "price": 44.9,
+    "calories": 343,
+    "unit": "KG"
+  },
+  {
+    "title": "Вівсяні пластівці",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 375,
+    "unit": "KG"
+  },
+  {
+    "title": "Вівсянка швидкого приготування",
+    "category": "бакалія",
+    "price": 20,
+    "calories": 347,
+    "unit": "KG"
+  },
+  {
+    "title": "Вівсянка з шматочками фруктів",
+    "category": "бакалія",
+    "price": 35,
+    "calories": 365,
+    "unit": "KG"
+  },
+  {
+    "title": "Геркулес",
+    "category": "бакалія",
+    "price": 28,
+    "calories": 368,
+    "unit": "KG"
+  },
+  {
+    "title": "Пшоняна крупа",
+    "category": "бакалія",
+    "price": 32.5,
+    "calories": 360,
+    "unit": "KG"
+  },
+  {
+    "title": "Перлова крупа",
+    "category": "бакалія",
+    "price": 22.4,
+    "calories": 320,
+    "unit": "KG"
+  },
+  {
+    "title": "Ячна крупа",
+    "category": "бакалія",
+    "price": 20.8,
+    "calories": 340,
+    "unit": "KG"
+  },
+  {
+    "title": "Булгур",
+    "category": "бакалія",
+    "price": 35.0,
+    "calories": 342,
+    "unit": "KG"
+  },
+  {
+    "title": "Кіноа біла",
+    "category": "бакалія",
+    "price": 64.9,
+    "calories": 368,
+    "unit": "KG"
+  },
+  {
+    "title": "Кіноа червона",
+    "category": "бакалія",
+    "price": 219.0,
+    "calories": 368,
+    "unit": "KG"
+  },
+  {
+    "title": "Кіноа чорна",
+    "category": "бакалія",
+    "price": 209.0,
+    "calories": 368,
+    "unit": "KG"
+  },
+  {
+    "title": "Макарони твердих сортів (спагеті)",
+    "category": "бакалія",
+    "price": 30.0,
+    "calories": 353,
+    "unit": "KG"
+  },
+  {
+    "title": "Макарони безглютенові",
+    "category": "бакалія",
+    "price": 48.4,
+    "calories": 348,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно пшеничне вищого сорту",
+    "category": "бакалія",
+    "price": 20,
+    "calories": 364,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно пшеничне першого сорту",
+    "category": "бакалія",
+    "price": 23.8,
+    "calories": 364,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно житнє",
+    "category": "бакалія",
+    "price": 23.8,
+    "calories": 340,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно кукурудзяне",
+    "category": "бакалія",
+    "price": 15,
+    "calories": 365,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно гречане",
+    "category": "бакалія",
+    "price": 23.8,
+    "calories": 343,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно рисове",
+    "category": "бакалія",
+    "price": 23.8,
+    "calories": 366,
+    "unit": "KG"
+  },
+  {
+    "title": "Борошно з нуту",
+    "category": "бакалія",
+    "price": 23.8,
+    "calories": 387,
+    "unit": "KG"
+  },
+  {
+    "title": "Білий хліб",
+    "category": "бакалія",
+    "price": 25,
+    "calories": 265,
+    "unit": "KG"
+  },
+  {
+    "title": "Чорний хліб",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Цільнозерновий хліб",
+    "category": "бакалія",
+    "price": 35,
+    "calories": 240,
+    "unit": "KG"
+  },
+  {
+    "title": "Тостовий хліб",
+    "category": "бакалія",
+    "price": 40,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Пшеничний хліб",
+    "category": "бакалія",
+    "price": 36.25,
+    "calories": 260,
+    "unit": "KG"
+  },
+  {
+    "title": "Хліб білий нарізаний",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 240,
+    "unit": "KG"
+  },
+  {
+    "title": "Тости грінки класичні",
+    "category": "бакалія",
+    "price": 35.93,
+    "calories": 350,
+    "unit": "KG"
+  },
+  {
+    "title": "Батон",
+    "category": "бакалія",
+    "price": 25,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Тостовий хліб",
+    "category": "бакалія",
+    "price": 35,
+    "calories": 230,
+    "unit": "KG"
+  },
+  {
+    "title": "Батон нарізаний",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 245,
+    "unit": "KG"
+  },
+  {
+    "title": "пластівці овсяні",
+    "category": "бакалія",
+    "price": 14.9,
+    "calories": 366,
+    "unit": "KG"
+  },
+  {
+    "title": "пластівці кукурудзяні",
+    "category": "бакалія",
+    "price": 25.0,
+    "calories": 378,
+    "unit": "KG"
+  },
+  {
+    "title": "пластівці житні",
+    "category": "бакалія",
+    "price": 14.9,
+    "calories": 330,
+    "unit": "KG"
+  },
+  {
+    "title": "пластівці рисові",
+    "category": "бакалія",
+    "price": 14.9,
+    "calories": 370,
+    "unit": "KG"
+  },
+  {
+    "title": "пластівці мюслі",
+    "category": "бакалія",
+    "price": 14.9,
+    "calories": 389,
+    "unit": "KG"
+  },
+  {
+    "title": "Лаваш звичайний",
+    "category": "бакалія",
+    "price": 15.0,
+    "calories": 210,
+    "unit": "KG"
+  },
+  {
+    "title": "Лаваш з повітряним рисом",
+    "category": "бакалія",
+    "price": 18.0,
+    "calories": 200,
+    "unit": "KG"
+  },
+  {
+    "title": "Лаваш цільнозерновий",
+    "category": "бакалія",
+    "price": 20.0,
+    "calories": 215,
+    "unit": "KG"
+  },
+  {
+    "title": "Яловичина, шматок",
+    "category": "м'ясо",
+    "price": 180.0,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Яловичина, фарш",
+    "category": "м'ясо",
+    "price": 150.0,
+    "calories": 270,
+    "unit": "KG"
+  },
+  {
+    "title": "Яловичина, стейк",
+    "category": "м'ясо",
+    "price": 260.0,
+    "calories": 290,
+    "unit": "KG"
+  },
+  {
+    "title": "Яловичина, ребра",
+    "category": "м'ясо",
+    "price": 220.0,
+    "calories": 320,
+    "unit": "KG"
+  },
+  {
+    "title": "Свинина (шия)",
+    "category": "м'ясо",
+    "price": 150,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Свинина (лопатка)",
+    "category": "м'ясо",
+    "price": 140,
+    "calories": 230,
+    "unit": "KG"
+  },
+  {
+    "title": "Свинина (фарш)",
+    "category": "м'ясо",
+    "price": 160,
+    "calories": 270,
+    "unit": "KG"
+  },
+  {
+    "title": "Свинина (окорок)",
+    "category": "м'ясо",
+    "price": 170,
+    "calories": 240,
+    "unit": "KG"
+  },
+  {
+    "title": "Свинина (ребра)",
+    "category": "м'ясо",
+    "price": 180,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Телятина (м'ясо)",
+    "category": "м'ясо",
+    "price": 220,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Телятина (фарш)",
+    "category": "м'ясо",
+    "price": 200,
+    "calories": 150,
+    "unit": "KG"
+  },
+  {
+    "title": "Телятина (стейк)",
+    "category": "м'ясо",
+    "price": 250,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Телятина (потрошки)",
+    "category": "м'ясо",
+    "price": 180,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Баранина (м'ясо)",
+    "category": "м'ясо",
+    "price": 200.0,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Баранина (м'ясо на кістці)",
+    "category": "м'ясо",
+    "price": 220.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Бараняча котлета",
+    "category": "м'ясо",
+    "price": 49.9,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Баранячий фарш",
+    "category": "м'ясо",
+    "price": 136.9,
+    "calories": 280,
+    "unit": "KG"
+  },
+  {
+    "title": "Куряче філе",
+    "category": "м'ясо",
+    "price": 419.89,
+    "calories": 165,
+    "unit": "KG"
+  },
+  {
+    "title": "Курячі стегна",
+    "category": "м'ясо",
+    "price": 110.0,
+    "calories": 211,
+    "unit": "KG"
+  },
+  {
+    "title": "Курячі крильця",
+    "category": "м'ясо",
+    "price": 270.99,
+    "calories": 203,
+    "unit": "KG"
+  },
+  {
+    "title": "Курка ціла",
+    "category": "м'ясо",
+    "price": 208.89,
+    "calories": 239,
+    "unit": "KG"
+  },
+  {
+    "title": "Куряча печінка",
+    "category": "м'ясо",
+    "price": 94.5,
+    "calories": 190,
+    "unit": "KG"
+  },
+  {
+    "title": "Індичка філе",
+    "category": "м'ясо",
+    "price": 76.5,
+    "calories": 135,
+    "unit": "KG"
+  },
+  {
+    "title": "Індичка (ціла туша)",
+    "category": "м'ясо",
+    "price": 130.0,
+    "calories": 135,
+    "unit": "KG"
+  },
+  {
+    "title": "Індичка фарш",
+    "category": "м'ясо",
+    "price": 160.0,
+    "calories": 170,
+    "unit": "KG"
+  },
+  {
+    "title": "Індичка копчена",
+    "category": "м'ясо",
+    "price": 250.0,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Індичка у маринаді",
+    "category": "м'ясо",
+    "price": 140.0,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Качка свіжа",
+    "category": "м'ясо",
+    "price": 150,
+    "calories": 337,
+    "unit": "KG"
+  },
+  {
+    "title": "Качка копчена",
+    "category": "м'ясо",
+    "price": 250,
+    "calories": 305,
+    "unit": "KG"
+  },
+  {
+    "title": "Качка фарш",
+    "category": "м'ясо",
+    "price": 136.9,
+    "calories": 240,
+    "unit": "KG"
+  },
+  {
+    "title": "Качині яйця",
+    "category": "м'ясо",
+    "price": 30,
+    "calories": 185,
+    "unit": "PCS"
+  },
+  {
+    "title": "М'ясо кролика (напівтуша)",
+    "category": "м'ясо",
+    "price": 255.96,
+    "calories": 173,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе кролика",
+    "category": "м'ясо",
+    "price": 419.89,
+    "calories": 164,
+    "unit": "KG"
+  },
+  {
+    "title": "Кролик у власному соку (консерва)",
+    "category": "м'ясо",
+    "price": 85.0,
+    "calories": 150,
+    "unit": "L"
+  },
+  {
+    "title": "Ковбаса варена",
+    "category": "м'ясо",
+    "price": 110,
+    "calories": 240,
+    "unit": "KG"
+  },
+  {
+    "title": "Ковбаса сирокопчена",
+    "category": "м'ясо",
+    "price": 200.0,
+    "calories": 360,
+    "unit": "KG"
+  },
+  {
+    "title": "Ковбаса баликова",
+    "category": "м'ясо",
+    "price": 165.4,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Ковбаса варена",
+    "category": "м'ясо",
+    "price": 120.0,
+    "calories": 280,
+    "unit": "KG"
+  },
+  {
+    "title": "Ковбаса копчена",
+    "category": "м'ясо",
+    "price": 302.1,
+    "calories": 350,
+    "unit": "KG"
+  },
+  {
+    "title": "Шинка Варена",
+    "category": "м'ясо",
+    "price": 441.95,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Шинка Копчена",
+    "category": "м'ясо",
+    "price": 441.95,
+    "calories": 350,
+    "unit": "KG"
+  },
+  {
+    "title": "Шинка Гуляш",
+    "category": "м'ясо",
+    "price": 441.95,
+    "calories": 320,
+    "unit": "KG"
+  },
+  {
+    "title": "Шинка Трапезна",
+    "category": "м'ясо",
+    "price": 441.95,
+    "calories": 270,
+    "unit": "KG"
+  },
+  {
+    "title": "Шинка Дерев'яна",
+    "category": "м'ясо",
+    "price": 441.95,
+    "calories": 310,
+    "unit": "KG"
+  },
+  {
+    "title": "Буженина свиняча",
+    "category": "м'ясо",
+    "price": 357.89,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Буженина яловича",
+    "category": "м'ясо",
+    "price": 357.89,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Сало Сало з прожилками",
+    "category": "м'ясо",
+    "price": 228.99,
+    "calories": 800,
+    "unit": "KG"
+  },
+  {
+    "title": "Сало без прожилок",
+    "category": "м'ясо",
+    "price": 228.99,
+    "calories": 850,
+    "unit": "KG"
+  },
+  {
+    "title": "Копчене сало",
+    "category": "м'ясо",
+    "price": 160,
+    "calories": 900,
+    "unit": "KG"
+  },
+  {
+    "title": "Сало в спеціях",
+    "category": "м'ясо",
+    "price": 228.99,
+    "calories": 820,
+    "unit": "KG"
+  },
+  {
+    "title": "Бекон свинячий копчений",
+    "category": "м'ясо",
+    "price": 250.0,
+    "calories": 541,
+    "unit": "KG"
+  },
+  {
+    "title": "Бекон курячий",
+    "category": "м'ясо",
+    "price": 220.0,
+    "calories": 290,
+    "unit": "KG"
+  },
+  {
+    "title": "Бекон індичий",
+    "category": "м'ясо",
+    "price": 240.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Бекон свинячий слайсами",
+    "category": "м'ясо",
+    "price": 158.89,
+    "calories": 450,
+    "unit": "KG"
+  },
+  {
+    "title": "Свиняча грудинка",
+    "category": "м'ясо",
+    "price": 512.65,
+    "calories": 500,
+    "unit": "KG"
+  },
+  {
+    "title": "Яловича грудинка",
+    "category": "м'ясо",
+    "price": 512.65,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Копчена грудинка",
+    "category": "м'ясо",
+    "price": 512.65,
+    "calories": 450,
+    "unit": "KG"
+  },
+  {
+    "title": "Підчеревина",
+    "category": "м'ясо",
+    "price": 180,
+    "calories": 550,
+    "unit": "KG"
+  },
+  {
+    "title": "Печінка куряча",
+    "category": "м'ясо",
+    "price": 94.5,
+    "calories": 170,
+    "unit": "KG"
+  },
+  {
+    "title": "Печінка яловича",
+    "category": "м'ясо",
+    "price": 145.69,
+    "calories": 132,
+    "unit": "KG"
+  },
+  {
+    "title": "Печінка свиняча",
+    "category": "м'ясо",
+    "price": 91.69,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Печінка тріски консервована",
+    "category": "риба і морепродукти",
+    "price": 200,
+    "calories": 250,
+    "unit": "L"
+  },
+  {
+    "title": "Серце яловичини",
+    "category": "м'ясо",
+    "price": 150,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Серце свинини",
+    "category": "м'ясо",
+    "price": 140,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Серце куряче",
+    "category": "м'ясо",
+    "price": 100,
+    "calories": 170,
+    "unit": "KG"
+  },
+  {
+    "title": "Куряче сердечко (заморожене)",
+    "category": "м'ясо",
+    "price": 138.9,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "Нирки яловичі",
+    "category": "м'ясо",
+    "price": 124.09,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Нирки свинячі",
+    "category": "м'ясо",
+    "price": 427.69,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "Нирки баранячі",
+    "category": "м'ясо",
+    "price": 90.0,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Лосось свіжий",
+    "category": "риба і морепродукти",
+    "price": 300,
+    "calories": 206,
+    "unit": "KG"
+  },
+  {
+    "title": "Лосось копчений",
+    "category": "риба і морепродукти",
+    "price": 600,
+    "calories": 117,
+    "unit": "KG"
+  },
+  {
+    "title": "Лосось консервований",
+    "category": "риба і морепродукти",
+    "price": 150,
+    "calories": 248,
+    "unit": "L"
+  },
+  {
+    "title": "Тунець (консервований)",
+    "category": "риба і морепродукти",
+    "price": 120,
+    "calories": 132,
+    "unit": "L"
+  },
+  {
+    "title": "Бички (консервовані)",
+    "category": "риба і морепродукти",
+    "price": 100,
+    "calories": 150,
+    "unit": "L"
+  },
+  {
+    "title": "Сардини (консервовані)",
+    "category": "риба і морепродукти",
+    "price": 90,
+    "calories": 208,
+    "unit": "L"
+  },
+  {
+    "title": "Скумбрія свіжоморожена",
+    "category": "риба і морепродукти",
+    "price": 150,
+    "calories": 205,
+    "unit": "KG"
+  },
+  {
+    "title": "Скумбрія в олії",
+    "category": "риба і морепродукти",
+    "price": 45,
+    "calories": 250,
+    "unit": "PCS"
+  },
+  {
+    "title": "Скумбрія в томатному соусі",
+    "category": "риба і морепродукти",
+    "price": 55,
+    "calories": 210,
+    "unit": "PCS"
+  },
+  {
+    "title": "Консерви тунця в олії",
+    "category": "риба і морепродукти",
+    "price": 60,
+    "calories": 190,
+    "unit": "PCS"
+  },
+  {
+    "title": "Консерви бички в томатному соусі",
+    "category": "риба і морепродукти",
+    "price": 35,
+    "calories": 170,
+    "unit": "PCS"
+  },
+  {
+    "title": "Оселедець філе",
+    "category": "риба і морепродукти",
+    "price": 100,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Оселедець в олії",
+    "category": "риба і морепродукти",
+    "price": 119.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець в упаковці",
+    "category": "риба і морепродукти",
+    "price": 150,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томатному соусі",
+    "category": "риба і морепродукти",
+    "price": 160.92,
+    "calories": 200,
+    "unit": "KG"
+  },
+  {
+    "title": "Скумбрія в олії",
+    "category": "риба і морепродукти",
+    "price": 53.7,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Оселедець солоний",
+    "category": "риба і морепродукти",
+    "price": 70,
+    "calories": 210,
+    "unit": "KG"
+  },
+  {
+    "title": "Риба в асорті",
+    "category": "риба і морепродукти",
+    "price": 90,
+    "calories": 185,
+    "unit": "KG"
+  },
+  {
+    "title": "Судак",
+    "category": "риба і морепродукти",
+    "price": 250,
+    "calories": 80,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консерва",
+    "category": "риба і морепродукти",
+    "price": 1399.9,
+    "calories": 132,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томатному соусі",
+    "category": "риба і морепродукти",
+    "price": 160.92,
+    "calories": 150,
+    "unit": "KG"
+  },
+  {
+    "title": "Сімга свіжоморожена",
+    "category": "риба і морепродукти",
+    "price": 400,
+    "calories": 206,
+    "unit": "KG"
+  },
+  {
+    "title": "Треска свіжоморожена",
+    "category": "риба і морепродукти",
+    "price": 200,
+    "calories": 110,
+    "unit": "KG"
+  },
+  {
+    "title": "Тріска заморожена",
+    "category": "риба і морепродукти",
+    "price": 120,
+    "calories": 80,
+    "unit": "KG"
+  },
+  {
+    "title": "Тріска філе (свіже)",
+    "category": "риба і морепродукти",
+    "price": 999.9,
+    "calories": 90,
+    "unit": "KG"
+  },
+  {
+    "title": "Рибні консерви (тріска в олії)",
+    "category": "риба і морепродукти",
+    "price": 50,
+    "calories": 180,
+    "unit": "L"
+  },
+  {
+    "title": "Тунець консервований",
+    "category": "риба і морепродукти",
+    "price": 70,
+    "calories": 132,
+    "unit": "L"
+  },
+  {
+    "title": "Бички в томаті",
+    "category": "риба і морепродукти",
+    "price": 45,
+    "calories": 140,
+    "unit": "L"
+  },
+  {
+    "title": "Тунець консервований в олії",
+    "category": "риба і морепродукти",
+    "price": 56.6,
+    "calories": 200,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консервований у власному соку",
+    "category": "риба і морепродукти",
+    "price": 171.72,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець свіжий",
+    "category": "риба і морепродукти",
+    "price": 300.0,
+    "calories": 132,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички консервовані",
+    "category": "риба і морепродукти",
+    "price": 52.9,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Щука свіжа",
+    "category": "риба і морепродукти",
+    "price": 150.0,
+    "calories": 105,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консервований",
+    "category": "риба і морепродукти",
+    "price": 80.0,
+    "calories": 132,
+    "unit": "L"
+  },
+  {
+    "title": "Бички консервовані",
+    "category": "риба і морепродукти",
+    "price": 45.0,
+    "calories": 195,
+    "unit": "L"
+  },
+  {
+    "title": "Сайра консервована",
+    "category": "риба і морепродукти",
+    "price": 60.0,
+    "calories": 170,
+    "unit": "L"
+  },
+  {
+    "title": "креветки варені",
+    "category": "риба і морепродукти",
+    "price": 301.32,
+    "calories": 85,
+    "unit": "KG"
+  },
+  {
+    "title": "креветки заморожені",
+    "category": "риба і морепродукти",
+    "price": 300,
+    "calories": 92,
+    "unit": "KG"
+  },
+  {
+    "title": "креветки смажені",
+    "category": "риба і морепродукти",
+    "price": 350,
+    "calories": 160,
+    "unit": "KG"
+  },
+  {
+    "title": "креветки в маринаді",
+    "category": "риба і морепродукти",
+    "price": 250,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Мідії свіжоморожені",
+    "category": "риба і морепродукти",
+    "price": 70.9,
+    "calories": 130,
+    "unit": "KG"
+  },
+  {
+    "title": "Мідії в маринаді",
+    "category": "риба і морепродукти",
+    "price": 139.0,
+    "calories": 90,
+    "unit": "KG"
+  },
+  {
+    "title": "Мідії в соусі",
+    "category": "риба і морепродукти",
+    "price": 67.0,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консервований",
+    "category": "риба і морепродукти",
+    "price": 80,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички консервовані",
+    "category": "риба і морепродукти",
+    "price": 52.9,
+    "calories": 160,
+    "unit": "KG"
+  },
+  {
+    "title": "Сардини у олії",
+    "category": "риба і морепродукти",
+    "price": 60,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Кальмари свіжі",
+    "category": "риба і морепродукти",
+    "price": 250.0,
+    "calories": 92,
+    "unit": "KG"
+  },
+  {
+    "title": "Кальмари заморожені",
+    "category": "риба і морепродукти",
+    "price": 200.0,
+    "calories": 85,
+    "unit": "KG"
+  },
+  {
+    "title": "Кальмари консервовані",
+    "category": "риба і морепродукти",
+    "price": 75.0,
+    "calories": 110,
+    "unit": "L"
+  },
+  {
+    "title": "Свіжий восьминіг",
+    "category": "риба і морепродукти",
+    "price": 300,
+    "calories": 70,
+    "unit": "KG"
+  },
+  {
+    "title": "Восьминіг консервований",
+    "category": "риба і морепродукти",
+    "price": 52.9,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець у власному соці",
+    "category": "риба і морепродукти",
+    "price": 56.6,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "Сардини в олії",
+    "category": "риба і морепродукти",
+    "price": 101.6,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томатному соусі",
+    "category": "риба і морепродукти",
+    "price": 160.92,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Скумбрія копчена",
+    "category": "риба і морепродукти",
+    "price": 250,
+    "calories": 210,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець морожений",
+    "category": "риба і морепродукти",
+    "price": 1399.9,
+    "calories": 132,
+    "unit": "KG"
+  },
+  {
+    "title": "Скумбрія морожена",
+    "category": "риба і морепродукти",
+    "price": 120,
+    "calories": 205,
+    "unit": "KG"
+  },
+  {
+    "title": "Хек морожений",
+    "category": "риба і морепродукти",
+    "price": 90,
+    "calories": 80,
+    "unit": "KG"
+  },
+  {
+    "title": "Лосось морожений",
+    "category": "риба і морепродукти",
+    "price": 400,
+    "calories": 206,
+    "unit": "KG"
+  },
+  {
+    "title": "Тріска морожена",
+    "category": "риба і морепродукти",
+    "price": 999.9,
+    "calories": 82,
+    "unit": "KG"
+  },
+  {
+    "title": "Пангасіус морожений",
+    "category": "риба і морепродукти",
+    "price": 248.39,
+    "calories": 90,
+    "unit": "KG"
+  },
+  {
+    "title": "Окунь морожений",
+    "category": "риба і морепродукти",
+    "price": 321.79,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички морожені",
+    "category": "риба і морепродукти",
+    "price": 60,
+    "calories": 150,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе тунця",
+    "category": "риба і морепродукти",
+    "price": 419.89,
+    "calories": 132,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе тріски",
+    "category": "риба і морепродукти",
+    "price": 419.89,
+    "calories": 105,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе сьомги",
+    "category": "риба і морепродукти",
+    "price": 450.0,
+    "calories": 206,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе хека",
+    "category": "риба і морепродукти",
+    "price": 419.89,
+    "calories": 90,
+    "unit": "KG"
+  },
+  {
+    "title": "Філе дорадо",
+    "category": "риба і морепродукти",
+    "price": 419.89,
+    "calories": 133,
+    "unit": "KG"
+  },
+  {
+    "title": "Квасоля біла",
+    "category": "бакалія",
+    "price": 30.0,
+    "calories": 333,
+    "unit": "KG"
+  },
+  {
+    "title": "Квасоля червона",
+    "category": "бакалія",
+    "price": 35.0,
+    "calories": 337,
+    "unit": "KG"
+  },
+  {
+    "title": "Квасоля чорна",
+    "category": "бакалія",
+    "price": 32.0,
+    "calories": 340,
+    "unit": "KG"
+  },
+  {
+    "title": "Квасоля консервована",
+    "category": "бакалія",
+    "price": 50.4,
+    "calories": 110,
+    "unit": "L"
+  },
+  {
+    "title": "Горох (сухий)",
+    "category": "бакалія",
+    "price": 23.9,
+    "calories": 343,
+    "unit": "KG"
+  },
+  {
+    "title": "Горох (консервований)",
+    "category": "бакалія",
+    "price": 20.0,
+    "calories": 80,
+    "unit": "L"
+  },
+  {
+    "title": "Горох (заморожений)",
+    "category": "бакалія",
+    "price": 45.0,
+    "calories": 81,
+    "unit": "KG"
+  },
+  {
+    "title": "Сочевиця червона",
+    "category": "бакалія",
+    "price": 49.2,
+    "calories": 339,
+    "unit": "KG"
+  },
+  {
+    "title": "нут",
+    "category": "бакалія",
+    "price": 45.0,
+    "calories": 164,
+    "unit": "KG"
+  },
+  {
+    "title": "червоний нут",
+    "category": "бакалія",
+    "price": 50.0,
+    "calories": 165,
+    "unit": "KG"
+  },
+  {
+    "title": "консервований нут",
+    "category": "бакалія",
+    "price": 52.9,
+    "calories": 140,
+    "unit": "KG"
+  },
+  {
+    "title": "чорний нут",
+    "category": "бакалія",
+    "price": 60.0,
+    "calories": 167,
+    "unit": "KG"
+  },
+  {
+    "title": "Тофу пресований",
+    "category": "бакалія",
+    "price": 70.0,
+    "calories": 76,
+    "unit": "KG"
+  },
+  {
+    "title": "Тофу ніжний",
+    "category": "бакалія",
+    "price": 80.0,
+    "calories": 85,
+    "unit": "KG"
+  },
+  {
+    "title": "Соєве молоко",
+    "category": "бакалія",
+    "price": 50.0,
+    "calories": 33,
+    "unit": "L"
+  },
+  {
+    "title": "Соєві боби",
+    "category": "бакалія",
+    "price": 389.0,
+    "calories": 446,
+    "unit": "KG"
+  },
+  {
+    "title": "Соєві горошки консервовані",
+    "category": "бакалія",
+    "price": 25.0,
+    "calories": 60,
+    "unit": "KG"
+  },
+  {
+    "title": "Арахіс смажений",
+    "category": "бакалія",
+    "price": 129.0,
+    "calories": 567,
+    "unit": "KG"
+  },
+  {
+    "title": "Арахіс солоний",
+    "category": "бакалія",
+    "price": 13.4,
+    "calories": 576,
+    "unit": "KG"
+  },
+  {
+    "title": "Арахіс натуральний",
+    "category": "бакалія",
+    "price": 140.0,
+    "calories": 567,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдаль сирий",
+    "category": "бакалія",
+    "price": 250,
+    "calories": 579,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдаль смажений",
+    "category": "бакалія",
+    "price": 39.5,
+    "calories": 575,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдаль порізаний",
+    "category": "бакалія",
+    "price": 102.6,
+    "calories": 577,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдаль в шоколаді",
+    "category": "бакалія",
+    "price": 350,
+    "calories": 600,
+    "unit": "KG"
+  },
+  {
+    "title": "Грецькі горіхи",
+    "category": "бакалія",
+    "price": 250,
+    "calories": 654,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння соняшника очищене",
+    "category": "бакалія",
+    "price": 42.9,
+    "calories": 580,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння соняшника в оболонці",
+    "category": "бакалія",
+    "price": 42.9,
+    "calories": 600,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння соняшника підсолене",
+    "category": "бакалія",
+    "price": 28.9,
+    "calories": 580,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння гарбуза очищене",
+    "category": "бакалія",
+    "price": 48.3,
+    "calories": 559,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння гарбуза з сіллю",
+    "category": "бакалія",
+    "price": 48.3,
+    "calories": 580,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння гарбуза смажене",
+    "category": "бакалія",
+    "price": 170.0,
+    "calories": 574,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння чіа",
+    "category": "бакалія",
+    "price": 68.9,
+    "calories": 486,
+    "unit": "KG"
+  },
+  {
+    "title": "Насіння чіа органічне",
+    "category": "бакалія",
+    "price": 68.9,
+    "calories": 486,
+    "unit": "KG"
+  },
+  {
+    "title": "Оливкова олія Extra Virgin",
+    "category": "бакалія",
+    "price": 677.34,
+    "calories": 884,
+    "unit": "L"
+  },
+  {
+    "title": "Оливкова олія рафінована",
+    "category": "бакалія",
+    "price": 263.0,
+    "calories": 884,
+    "unit": "L"
+  },
+  {
+    "title": "Оливкова олія з ароматом",
+    "category": "бакалія",
+    "price": 220,
+    "calories": 884,
+    "unit": "L"
+  },
+  {
+    "title": "Соняшникова олія рафінована",
+    "category": "бакалія",
+    "price": 50.0,
+    "calories": 899,
+    "unit": "L"
+  },
+  {
+    "title": "Соняшникова олія нерафінована",
+    "category": "бакалія",
+    "price": 69.5,
+    "calories": 900,
+    "unit": "L"
+  },
+  {
+    "title": "Соняшникова олія органічна",
+    "category": "бакалія",
+    "price": 295.74,
+    "calories": 900,
+    "unit": "L"
+  },
+  {
+    "title": "Масло вершкове ТМ 'Терем'",
+    "category": "бакалія",
+    "price": 90.4,
+    "calories": 745,
+    "unit": "KG"
+  },
+  {
+    "title": "Масло вершкове ТМ 'Селянське'",
+    "category": "бакалія",
+    "price": 90.4,
+    "calories": 740,
+    "unit": "KG"
+  },
+  {
+    "title": "Масло вершкове ТМ 'Молочний Міст'",
+    "category": "бакалія",
+    "price": 90.4,
+    "calories": 720,
+    "unit": "KG"
+  },
+  {
+    "title": "Масло вершкове ТМ 'Рудь'",
+    "category": "бакалія",
+    "price": 90.4,
+    "calories": 750,
+    "unit": "KG"
+  },
+  {
+    "title": "Масло вершкове ТМ 'Луга'",
+    "category": "бакалія",
+    "price": 90.4,
+    "calories": 730,
+    "unit": "KG"
+  },
+  {
+    "title": "Маргарин без трансжирів",
+    "category": "бакалія",
+    "price": 44.9,
+    "calories": 720,
+    "unit": "KG"
+  },
+  {
+    "title": "Веганський маргарин",
+    "category": "бакалія",
+    "price": 44.9,
+    "calories": 670,
+    "unit": "KG"
+  },
+  {
+    "title": "Маргарин",
+    "category": "бакалія",
+    "price": 45.0,
+    "calories": 680,
+    "unit": "KG"
+  },
+  {
+    "title": "Соєвий соус",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 53,
+    "unit": "L"
+  },
+  {
+    "title": "Кетчуп",
+    "category": "бакалія",
+    "price": 25,
+    "calories": 100,
+    "unit": "L"
+  },
+  {
+    "title": "Гірчиця",
+    "category": "бакалія",
+    "price": 20,
+    "calories": 131,
+    "unit": "L"
+  },
+  {
+    "title": "Майонез",
+    "category": "бакалія",
+    "price": 45,
+    "calories": 680,
+    "unit": "L"
+  },
+  {
+    "title": "Томатний соус",
+    "category": "бакалія",
+    "price": 67.3,
+    "calories": 75,
+    "unit": "L"
+  },
+  {
+    "title": "Сальса",
+    "category": "бакалія",
+    "price": 40,
+    "calories": 70,
+    "unit": "L"
+  },
+  {
+    "title": "Сіль",
+    "category": "бакалія",
+    "price": 15.0,
+    "calories": 0,
+    "unit": "KG"
+  },
+  {
+    "title": "Чорний перець",
+    "category": "бакалія",
+    "price": 36.6,
+    "calories": 251,
+    "unit": "KG"
+  },
+  {
+    "title": "Паприка",
+    "category": "бакалія",
+    "price": 45.0,
+    "calories": 282,
+    "unit": "KG"
+  },
+  {
+    "title": "Куркума",
+    "category": "бакалія",
+    "price": 60.0,
+    "calories": 354,
+    "unit": "KG"
+  },
+  {
+    "title": "Оцет винний",
+    "category": "бакалія",
+    "price": 61.56,
+    "calories": 20,
+    "unit": "L"
+  },
+  {
+    "title": "Оцет яблучний",
+    "category": "бакалія",
+    "price": 25,
+    "calories": 22,
+    "unit": "L"
+  },
+  {
+    "title": "Оцет столовий",
+    "category": "бакалія",
+    "price": 41.58,
+    "calories": 0,
+    "unit": "L"
+  },
+  {
+    "title": "Бульйонні кубики курячі",
+    "category": "бакалія",
+    "price": 15.0,
+    "calories": 300,
+    "unit": "PCS"
+  },
+  {
+    "title": "Бульйонні кубики яловичі",
+    "category": "бакалія",
+    "price": 20.0,
+    "calories": 350,
+    "unit": "PCS"
+  },
+  {
+    "title": "Бульйонні кубики овочеві",
+    "category": "бакалія",
+    "price": 18.0,
+    "calories": 250,
+    "unit": "PCS"
+  },
+  {
+    "title": "Бульйонні кубики рибні",
+    "category": "бакалія",
+    "price": 22.0,
+    "calories": 300,
+    "unit": "PCS"
+  },
+  {
+    "title": "Арахісова паста",
+    "category": "бакалія",
+    "price": 150.0,
+    "calories": 588,
+    "unit": "KG"
+  },
+  {
+    "title": "Мигдальна паста",
+    "category": "бакалія",
+    "price": 180.0,
+    "calories": 609,
+    "unit": "KG"
+  },
+  {
+    "title": "Фісташкова паста",
+    "category": "бакалія",
+    "price": 250.0,
+    "calories": 569,
+    "unit": "KG"
+  },
+  {
+    "title": "Цукор буряковий",
+    "category": "кондитерські вироби",
+    "price": 25.9,
+    "calories": 387,
+    "unit": "KG"
+  },
+  {
+    "title": "Цукор тростниковий",
+    "category": "кондитерські вироби",
+    "price": 25.9,
+    "calories": 390,
+    "unit": "KG"
+  },
+  {
+    "title": "Цукор кондитерський",
+    "category": "кондитерські вироби",
+    "price": 37.31,
+    "calories": 400,
+    "unit": "KG"
+  },
+  {
+    "title": "Мед акації",
+    "category": "кондитерські вироби",
+    "price": 150,
+    "calories": 304,
+    "unit": "KG"
+  },
+  {
+    "title": "Мед гречаний",
+    "category": "кондитерські вироби",
+    "price": 86.4,
+    "calories": 315,
+    "unit": "KG"
+  },
+  {
+    "title": "Мед липовий",
+    "category": "кондитерські вироби",
+    "price": 109.0,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Мед з кориці",
+    "category": "кондитерські вироби",
+    "price": 200,
+    "calories": 292,
+    "unit": "KG"
+  },
+  {
+    "title": "Мед з имбирем",
+    "category": "кондитерські вироби",
+    "price": 220,
+    "calories": 290,
+    "unit": "KG"
+  },
+  {
+    "title": "Сік апельсиновий",
+    "category": "напої",
+    "price": 132.5,
+    "calories": 45,
+    "unit": "L"
+  },
+  {
+    "title": "Сік яблучний",
+    "category": "напої",
+    "price": 25.0,
+    "calories": 46,
+    "unit": "L"
+  },
+  {
+    "title": "Сік грушевий",
+    "category": "напої",
+    "price": 28.0,
+    "calories": 50,
+    "unit": "L"
+  },
+  {
+    "title": "Сік гранатовий",
+    "category": "напої",
+    "price": 35.0,
+    "calories": 83,
+    "unit": "L"
+  },
+  {
+    "title": "Сік томатний",
+    "category": "напої",
+    "price": 22.0,
+    "calories": 18,
+    "unit": "L"
+  },
+  {
+    "title": "Сік мультифруктовий",
+    "category": "напої",
+    "price": 27.0,
+    "calories": 40,
+    "unit": "L"
+  },
+  {
+    "title": "Курячі яйця",
+    "category": "молочна продукція та яйця",
+    "price": 30.0,
+    "calories": 155,
+    "unit": "PCS"
+  },
+  {
+    "title": "Яйця курячі органічні",
+    "category": "молочна продукція та яйця",
+    "price": 86.5,
+    "calories": 155,
+    "unit": "PCS"
+  },
+  {
+    "title": "Яйця курячі з домашнього господарства",
+    "category": "молочна продукція та яйця",
+    "price": 50.0,
+    "calories": 155,
+    "unit": "PCS"
+  },
+  {
+    "title": "Перепелині яйця",
+    "category": "молочна продукція та яйця",
+    "price": 25.0,
+    "calories": 158,
+    "unit": "PCS"
+  },
+  {
+    "title": "Яйця індички",
+    "category": "молочна продукція та яйця",
+    "price": 20.0,
+    "calories": 155,
+    "unit": "PCS"
+  },
+  {
+    "title": "Яєчний порошок",
+    "category": "молочна продукція та яйця",
+    "price": 19.4,
+    "calories": 540,
+    "unit": "KG"
+  },
+  {
+    "title": "Яєчний порошок (білий)",
+    "category": "молочна продукція та яйця",
+    "price": 260.0,
+    "calories": 530,
+    "unit": "KG"
+  },
+  {
+    "title": "Яєчний порошок (жовток)",
+    "category": "молочна продукція та яйця",
+    "price": 504.4,
+    "calories": 600,
+    "unit": "KG"
+  },
+  {
+    "title": "Огірки мариновані",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 12,
+    "unit": "KG"
+  },
+  {
+    "title": "Горох консервований",
+    "category": "бакалія",
+    "price": 25,
+    "calories": 81,
+    "unit": "KG"
+  },
+  {
+    "title": "Кукурудза консервована",
+    "category": "бакалія",
+    "price": 52.9,
+    "calories": 96,
+    "unit": "KG"
+  },
+  {
+    "title": "Баклажани мариновані",
+    "category": "бакалія",
+    "price": 40,
+    "calories": 20,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консервований в олії",
+    "category": "бакалія",
+    "price": 56.6,
+    "calories": 184,
+    "unit": "KG"
+  },
+  {
+    "title": "Сардини в олії",
+    "category": "бакалія",
+    "price": 101.6,
+    "calories": 200,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томаті",
+    "category": "бакалія",
+    "price": 30,
+    "calories": 170,
+    "unit": "KG"
+  },
+  {
+    "title": "Вобла в олії",
+    "category": "бакалія",
+    "price": 55,
+    "calories": 210,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець консервований в олії",
+    "category": "бакалія",
+    "price": 56.6,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Шпроти в олії",
+    "category": "бакалія",
+    "price": 101.6,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томатному соусі",
+    "category": "бакалія",
+    "price": 160.92,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Куряча печінка консервована",
+    "category": "бакалія",
+    "price": 94.5,
+    "calories": 250,
+    "unit": "KG"
+  },
+  {
+    "title": "М'ясний паштет",
+    "category": "бакалія",
+    "price": 18.2,
+    "calories": 300,
+    "unit": "KG"
+  },
+  {
+    "title": "Тунець в олії",
+    "category": "бакалія",
+    "price": 56.6,
+    "calories": 180,
+    "unit": "KG"
+  },
+  {
+    "title": "Бички в томаті",
+    "category": "бакалія",
+    "price": 30.0,
+    "calories": 220,
+    "unit": "KG"
+  },
+  {
+    "title": "Гречка тушкована з м'ясом",
+    "category": "бакалія",
+    "price": 50.0,
+    "calories": 150,
+    "unit": "KG"
+  },
+  {
+    "title": "Сайра в олії",
+    "category": "бакалія",
+    "price": 289.01,
+    "calories": 210,
+    "unit": "KG"
+  },
+  {
+    "title": "Горбуша в соусі",
+    "category": "бакалія",
+    "price": 60.0,
+    "calories": 190,
+    "unit": "KG"
+  },
+  {
+    "title": "Суповий набір з курки",
+    "category": "бакалія",
+    "price": 139.32,
+    "calories": 70,
+    "unit": "KG"
+  },
+  {
+    "title": "Суповий набір з гриби",
+    "category": "бакалія",
+    "price": 90.0,
+    "calories": 60,
+    "unit": "KG"
+  },
+  {
+    "title": "Суповий набір з гороху",
+    "category": "бакалія",
+    "price": 75.0,
+    "calories": 120,
+    "unit": "KG"
+  },
+  {
+    "title": "Суповий набір з томатами",
+    "category": "бакалія",
+    "price": 80.0,
+    "calories": 50,
+    "unit": "KG"
+  }
+]
