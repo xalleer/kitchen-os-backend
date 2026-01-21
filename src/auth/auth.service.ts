@@ -16,13 +16,13 @@ import { JoinFamilyDto } from './dto/join-family.dto';
 @Injectable()
 export class AuthService {
   private googleClient: OAuth2Client;
-  
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-    private familyInvitesService: FamilyInvitesService, // ⭐ НОВЕ
+    private familyInvitesService: FamilyInvitesService,
   ) {
     const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     this.googleClient = new OAuth2Client(googleClientId);
@@ -30,7 +30,6 @@ export class AuthService {
 
   // ⭐ НОВА ФУНКЦІЯ: Реєстрація через інвайт код
   public async joinFamily(dto: JoinFamilyDto) {
-    // Перевіряємо чи існує користувач
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -39,14 +38,11 @@ export class AuthService {
       throw new BadRequestException('User with this email already exists');
     }
 
-    // Отримуємо інформацію з інвайту
     const inviteInfo = await this.familyInvitesService.getInviteInfo(dto.inviteCode);
 
-    // Хешуємо пароль
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(dto.password, salt);
 
-    // Створюємо користувача і прив'язуємо до сім'ї
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -56,14 +52,12 @@ export class AuthService {
       },
     });
 
-    // Використовуємо інвайт код
     await this.familyInvitesService.useInviteCode(
       dto.inviteCode,
       user.id,
       user.email,
     );
 
-    // Оновлюємо дані члена сім'ї якщо користувач вказав додаткові параметри
     if (dto.weight || dto.height || dto.age || dto.goal) {
       await this.prisma.familyMember.update({
         where: { id: inviteInfo.memberInfo.id },
@@ -71,7 +65,7 @@ export class AuthService {
           weight: dto.weight,
           height: dto.height,
           age: dto.age,
-          goal: dto.goal || inviteInfo.memberInfo.eatsBreakfast ? 'MAINTAIN' : undefined,
+          goal: dto.goal || 'MAINTAIN',
         },
       });
     }
@@ -79,12 +73,11 @@ export class AuthService {
     return this.generateToken(user.id, user.email, inviteInfo.familyId);
   }
 
-  // ⭐ НОВА ФУНКЦІЯ: Отримати інформацію про інвайт (для UI)
   public async getInviteInfo(inviteCode: string) {
     return this.familyInvitesService.getInviteInfo(inviteCode);
   }
 
-  // Існуюча функція register - БЕЗ ЗМІН
+  // ⭐ ВИПРАВЛЕНА функція register
   public async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -99,9 +92,16 @@ export class AuthService {
 
     const safeOwnerProfile = dto.ownerProfile || {
       name: dto.name,
-      age: null, weight: null, height: null, gender: 'UNSPECIFIED', goal: 'MAINTAIN',
-      allergies: [], dislikedProducts: [],
-      eatsBreakfast: true, eatsLunch: true, eatsDinner: true, eatsSnack: false,
+      age: null,
+      weight: null,
+      height: null,
+      gender: 'UNSPECIFIED',
+      goal: 'MAINTAIN',
+      allergyIds: [], // ⭐ ВИПРАВЛЕНО: allergyIds замість allergies
+      eatsBreakfast: true,
+      eatsLunch: true,
+      eatsDinner: true,
+      eatsSnack: false,
     };
 
     const result = await this.prisma.$transaction(async (prisma) => {
@@ -121,16 +121,18 @@ export class AuthService {
         },
       });
 
-      // Створюємо owner member profile
+      // ⭐ ВИПРАВЛЕНО: додано await
+      const ownerMemberData = await this.prepareMemberData(safeOwnerProfile, family.id, user.id);
       await prisma.familyMember.create({
-        data: this.prepareMemberData(safeOwnerProfile, family.id, user.id),
+        data: ownerMemberData,
       });
 
-      // Створюємо інших членів сім'ї
+      // ⭐ ВИПРАВЛЕНО: додано await для кожного member
       if (dto.familyMembers && dto.familyMembers.length > 0) {
         for (const member of dto.familyMembers) {
+          const memberData = await this.prepareMemberData(member, family.id, null);
           await prisma.familyMember.create({
-            data: this.prepareMemberData(member, family.id, null),
+            data: memberData,
           });
         }
       }
@@ -141,7 +143,6 @@ export class AuthService {
     return this.generateToken(result.user.id, result.user.email, result.family.id);
   }
 
-  // Решта функцій БЕЗ ЗМІН
   public async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -230,25 +231,42 @@ export class AuthService {
     }
   }
 
-  private prepareMemberData(memberDto: OwnerProfileDto, familyId: string, userId: string | null) {
+  // ⭐ ВИПРАВЛЕНА функція prepareMemberData - тепер async
+  private async prepareMemberData(memberDto: OwnerProfileDto, familyId: string, userId: string | null) {
+    // Перевіряємо чи існують алергії перед підключенням
+    let validAllergyIds: string[] = [];
+
+    if (memberDto.allergyIds && memberDto.allergyIds.length > 0) {
+      const existingAllergies = await this.prisma.allergy.findMany({
+        where: {
+          id: { in: memberDto.allergyIds }
+        },
+        select: { id: true }
+      });
+
+      validAllergyIds = existingAllergies.map(a => a.id);
+
+      // Логування для debug
+      if (validAllergyIds.length !== memberDto.allergyIds.length) {
+        console.warn(`⚠️ Some allergy IDs were not found. Requested: ${memberDto.allergyIds.length}, Found: ${validAllergyIds.length}`);
+      }
+    }
+
     return {
       familyId: familyId,
       userId: userId,
       name: memberDto.name,
-
       age: memberDto.age ?? null,
       weight: memberDto.weight ?? null,
       height: memberDto.height ?? null,
       goal: memberDto.goal || 'MAINTAIN',
       gender: memberDto.gender || 'UNSPECIFIED',
-
       eatsBreakfast: memberDto.eatsBreakfast ?? true,
       eatsLunch: memberDto.eatsLunch ?? true,
       eatsDinner: memberDto.eatsDinner ?? true,
       eatsSnack: memberDto.eatsSnack ?? false,
-
       allergies: {
-        connect: memberDto.allergyIds?.map((id) => ({ id })) || [],
+        connect: validAllergyIds.map((id) => ({ id })),
       },
     };
   }
