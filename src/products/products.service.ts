@@ -304,46 +304,4 @@ export class ProductsService {
       .filter((c): c is string => c !== null);
   }
 
-  /**
-   * ⭐ ДОДАНО: Метод для імпорту (для сумісності)
-   */
-  async seedProducts(products: CreateProductDto[]) {
-    let created = 0;
-    let updated = 0;
-
-    for (const product of products) {
-      const upserted = await this.prisma.product.upsert({
-        where: { name: product.name },
-        create: {
-          name: product.name,
-          category: product.category,
-          baseUnit: product.baseUnit,
-          averagePrice: product.averagePrice,
-          minPrice: product.averagePrice,
-          maxPrice: product.averagePrice,
-          lastPrice: product.averagePrice,
-          priceSamplesCount: 1,
-          caloriesPer100: product.caloriesPer100,
-          standardAmount: product.standardAmount,
-          image: product.image,
-        },
-        update: {
-          category: product.category,
-          baseUnit: product.baseUnit,
-          caloriesPer100: product.caloriesPer100,
-          standardAmount: product.standardAmount,
-          image: product.image,
-        },
-        select: { createdAt: true },
-      });
-
-      if (upserted.createdAt.getTime() >= Date.now() - 5_000) {
-        created++;
-      } else {
-        updated++;
-      }
-    }
-
-    return { created, skipped: 0, updated, total: products.length };
-  }
 }

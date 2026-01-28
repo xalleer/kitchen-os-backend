@@ -32,11 +32,10 @@ export class MealPlanController {
   @Post('generate')
   async generateMealPlan(
     @CurrentUser('familyId') familyId: string,
-    @Body() dto: GenerateMealPlanDto,
+    @Body() dto?: GenerateMealPlanDto,
   ) {
-    return this.mealPlanService.generateMealPlan(familyId, dto.daysCount || 7);
+    return this.mealPlanService.generateMealPlan(familyId, dto?.daysCount || 7);
   }
-
   /**
    * Отримати поточний план харчування
    * GET /meal-plan
