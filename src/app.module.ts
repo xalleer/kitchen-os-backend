@@ -19,9 +19,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { FamilyInvitesModule } from './family-invites/family-invites.module';
 import { WeeklyBudgetModule } from './weekly-budget/weekly-budget.module';
 
+const enableScheduledTasks = process.env.ENABLE_SCHEDULED_TASKS === 'true';
+
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
+    ...(enableScheduledTasks ? [ScheduleModule.forRoot()] : []),
     AuthModule,
     UsersModule,
     FamilyModule,

@@ -34,7 +34,12 @@ export class MealPlanController {
     @CurrentUser('familyId') familyId: string,
     @Body() dto?: GenerateMealPlanDto,
   ) {
-    return this.mealPlanService.generateMealPlan(familyId, dto?.daysCount || 7);
+    const daysCount =
+      dto && typeof dto.daysCount === 'number' && Number.isFinite(dto.daysCount)
+        ? dto.daysCount
+        : 7;
+
+    return this.mealPlanService.generateMealPlan(familyId, daysCount);
   }
   /**
    * Отримати поточний план харчування
