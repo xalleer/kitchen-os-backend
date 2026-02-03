@@ -192,7 +192,7 @@ export class MealPlanService {
   private estimatePrice(pricePerUnit: number | null, quantity: number, unit: Unit): number {
     const p = typeof pricePerUnit === 'number' && Number.isFinite(pricePerUnit) ? pricePerUnit : 0;
     if (unit === 'G' || unit === 'ML') {
-      return (quantity / 100) * p;
+      return (quantity / 1000) * p;
     }
     if (unit === 'PCS') {
       return quantity * p;

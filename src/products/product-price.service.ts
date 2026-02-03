@@ -17,6 +17,7 @@ export class ProductPriceService {
     familyId: string,
     price: number,
     quantity: number,
+    baseUnit: string,
     userId?: string,
     retailer?: string,
     region?: string,
@@ -29,7 +30,10 @@ export class ProductPriceService {
         userId,
         price,
         quantity,
-        totalCost: price * quantity,
+        totalCost:
+          baseUnit === 'G' || baseUnit === 'ML'
+            ? (price * quantity) / 1000
+            : price * quantity,
         retailer: retailer || 'Невідомо',
         region: region || 'Україна',
       },
@@ -173,8 +177,7 @@ export class ProductPriceService {
     baseUnit: string,
   ): number {
     if (baseUnit === 'G' || baseUnit === 'ML') {
-      // Ціна за 100г/100мл → перераховуємо
-      return (quantity / 100) * averagePrice;
+      return (quantity / 1000) * averagePrice;
     } else if (baseUnit === 'PCS') {
       // Ціна за штуку
       return quantity * averagePrice;

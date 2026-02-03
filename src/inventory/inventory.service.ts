@@ -112,6 +112,7 @@ export class InventoryService {
         familyId,
         pricePerUnit,
         dto.quantity,
+        product.baseUnit,
         undefined, // userId - можна додати пізніше
         dto.retailer, // ⭐ Додати retailer в DTO
         undefined, // region
@@ -142,8 +143,7 @@ export class InventoryService {
     baseUnit: string,
   ): number {
     if (baseUnit === 'G' || baseUnit === 'ML') {
-      // Ціна за 100г/100мл
-      return (totalPrice / quantity) * 100;
+      return (totalPrice / quantity) * 1000;
     } else if (baseUnit === 'PCS') {
       // Ціна за штуку
       return totalPrice / quantity;
@@ -160,7 +160,7 @@ export class InventoryService {
     unit: string,
   ): number {
     if (unit === 'G' || unit === 'ML') {
-      return (quantity / 100) * pricePerUnit;
+      return (quantity / 1000) * pricePerUnit;
     } else if (unit === 'PCS') {
       return quantity * pricePerUnit;
     }
