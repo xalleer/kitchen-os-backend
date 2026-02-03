@@ -18,10 +18,18 @@ export class ProductPriceService {
     price: number,
     quantity: number,
     baseUnit: string,
+    standardAmount?: number | null,
     userId?: string,
     retailer?: string,
     region?: string,
   ) {
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : baseUnit === 'G' || baseUnit === 'ML'
+          ? 1000
+          : 1;
+
     // 1. Записуємо ціну користувача
     await this.prisma.userProductPrice.create({
       data: {
@@ -30,10 +38,7 @@ export class ProductPriceService {
         userId,
         price,
         quantity,
-        totalCost:
-          baseUnit === 'G' || baseUnit === 'ML'
-            ? (price * quantity) / 1000
-            : price * quantity,
+        totalCost: (price * quantity) / baseAmount,
         retailer: retailer || 'Невідомо',
         region: region || 'Україна',
       },
@@ -175,13 +180,14 @@ export class ProductPriceService {
     averagePrice: number,
     quantity: number,
     baseUnit: string,
+    standardAmount?: number | null,
   ): number {
-    if (baseUnit === 'G' || baseUnit === 'ML') {
-      return (quantity / 1000) * averagePrice;
-    } else if (baseUnit === 'PCS') {
-      // Ціна за штуку
-      return quantity * averagePrice;
-    }
-    return quantity * averagePrice;
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : baseUnit === 'G' || baseUnit === 'ML'
+          ? 1000
+          : 1;
+    return (quantity / baseAmount) * averagePrice;
   }
 }

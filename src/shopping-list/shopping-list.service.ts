@@ -11,6 +11,7 @@ type BoughtShoppingListItem = {
   product: {
     name: string;
     baseUnit: Unit;
+    standardAmount: number | null;
   };
 };
 
@@ -43,6 +44,7 @@ export interface ProductRequirement {
   baseUnit: Unit;
   estimatedPrice?: number;
   pricePerUnit?: number | null;
+  standardAmount?: number | null;
 }
 
 export interface ShoppingListItemWithProduct {
@@ -57,6 +59,8 @@ export interface ShoppingListItemWithProduct {
     name: string;
     category: string | null;
     baseUnit: Unit;
+    averagePrice?: number | null;
+    standardAmount?: number | null;
     image: string | null;
   };
 }
@@ -129,6 +133,7 @@ export class ShoppingListService {
             baseUnit: ingredient.product.baseUnit,
             estimatedPrice: 0,
             pricePerUnit: ingredient.product.averagePrice,
+            standardAmount: ingredient.product.standardAmount,
           });
         }
       }
@@ -158,12 +163,19 @@ export class ShoppingListService {
       if (needToBuy > 0) {
         req.needToBuy = needToBuy;
 
-        // Розраховуємо стандартну тару
-        const standardAmount = this.calculateStandardAmount(needToBuy, req.baseUnit);
-        req.needToBuy = standardAmount;
+        const packagingAmount =
+          typeof req.standardAmount === 'number' && Number.isFinite(req.standardAmount) && req.standardAmount > 0
+            ? req.standardAmount
+            : this.calculateStandardAmount(needToBuy, req.baseUnit);
+        req.needToBuy = packagingAmount;
 
         // Оцінюємо ціну
-        req.estimatedPrice = this.estimatePrice(req.pricePerUnit ?? null, standardAmount, req.baseUnit);
+        req.estimatedPrice = this.estimatePrice(
+          req.pricePerUnit ?? null,
+          packagingAmount,
+          req.baseUnit,
+          req.standardAmount ?? null,
+        );
 
         shoppingItems.push(req);
       }
@@ -194,6 +206,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, 
+        standardAmount: true,
         image: true,
             },
           },
@@ -239,6 +252,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        standardAmount: true,
         image: true,
           },
         },
@@ -256,7 +270,8 @@ export class ShoppingListService {
     this.estimatePrice(
       item.product.averagePrice ?? null, // ⭐ ВИПРАВЛЕНО
       item.quantity, 
-      item.product.baseUnit
+      item.product.baseUnit,
+      item.product.standardAmount ?? null,
     );
   return sum + (price || 0);
 }, 0);
@@ -318,6 +333,7 @@ export class ShoppingListService {
           select: {
             name: true,
             baseUnit: true,
+            standardAmount: true,
           },
         },
       },
@@ -327,7 +343,7 @@ export class ShoppingListService {
       const price =
         item.actualPrice ??
         item.estimatedPrice ??
-        this.estimatePrice(null, item.quantity, item.product.baseUnit);
+        this.estimatePrice(null, item.quantity, item.product.baseUnit, item.product.standardAmount);
       return sum + (price || 0);
     }, 0);
 
@@ -379,6 +395,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        standardAmount: true,
         image: true,
           },
         },
@@ -431,6 +448,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        standardAmount: true,
         image: true,
           },
         },
@@ -587,6 +605,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        standardAmount: true,
         image: true,
             },
           },
@@ -610,6 +629,7 @@ export class ShoppingListService {
         category: true,
         baseUnit: true,
         averagePrice: true, // ⭐ ВИПРАВЛЕНО
+        standardAmount: true,
         image: true,
             },
           },
@@ -666,15 +686,20 @@ export class ShoppingListService {
   /**
    * Оцінити ціну продукту (базові ціни)
    */
-  private estimatePrice(pricePerUnit: number | null, quantity: number, unit: Unit): number {
+  private estimatePrice(
+    pricePerUnit: number | null,
+    quantity: number,
+    unit: Unit,
+    standardAmount?: number | null,
+  ): number {
     const p = typeof pricePerUnit === 'number' && Number.isFinite(pricePerUnit) ? pricePerUnit : 0;
-    if (unit === 'G' || unit === 'ML') {
-      return (quantity / 1000) * p;
-    }
-    if (unit === 'PCS') {
-      return quantity * p;
-    }
-    return quantity * p;
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : unit === 'G' || unit === 'ML'
+          ? 1000
+          : 1;
+    return (quantity / baseAmount) * p;
   }
 
   /**

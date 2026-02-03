@@ -61,7 +61,10 @@ export class MealPlanService {
     });
 
     const allowedProductsById = new Map(
-      allowedProducts.map((p) => [p.id, { baseUnit: p.baseUnit, averagePrice: p.averagePrice }]),
+      allowedProducts.map((p) => [
+        p.id,
+        { baseUnit: p.baseUnit, averagePrice: p.averagePrice, standardAmount: p.standardAmount },
+      ]),
     );
 
     const aiParams: MealPlanParams = {
@@ -139,7 +142,12 @@ export class MealPlanService {
           if (!p) {
             continue;
           }
-          estimatedCost += this.estimatePrice(p.averagePrice ?? null, ing.amount, p.baseUnit);
+          estimatedCost += this.estimatePrice(
+            p.averagePrice ?? null,
+            ing.amount,
+            p.baseUnit,
+            p.standardAmount ?? null,
+          );
         }
 
         const recipe = await this.prisma.recipe.create({
@@ -189,15 +197,20 @@ export class MealPlanService {
     };
   }
 
-  private estimatePrice(pricePerUnit: number | null, quantity: number, unit: Unit): number {
+  private estimatePrice(
+    pricePerUnit: number | null,
+    quantity: number,
+    unit: Unit,
+    standardAmount?: number | null,
+  ): number {
     const p = typeof pricePerUnit === 'number' && Number.isFinite(pricePerUnit) ? pricePerUnit : 0;
-    if (unit === 'G' || unit === 'ML') {
-      return (quantity / 1000) * p;
-    }
-    if (unit === 'PCS') {
-      return quantity * p;
-    }
-    return quantity * p;
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : unit === 'G' || unit === 'ML'
+          ? 1000
+          : 1;
+    return (quantity / baseAmount) * p;
   }
 
   /**

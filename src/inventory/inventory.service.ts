@@ -36,6 +36,7 @@ export class InventoryService {
           product.averagePrice,
           dto.quantity,
           product.baseUnit,
+          product.standardAmount,
         );
       } else {
         finalPurchasePrice = 0;
@@ -105,6 +106,7 @@ export class InventoryService {
         dto.purchasePrice,
         dto.quantity,
         product.baseUnit,
+        product.standardAmount,
       );
 
       await this.productPriceService.recordUserPrice(
@@ -113,6 +115,7 @@ export class InventoryService {
         pricePerUnit,
         dto.quantity,
         product.baseUnit,
+        product.standardAmount,
         undefined, // userId - можна додати пізніше
         dto.retailer, // ⭐ Додати retailer в DTO
         undefined, // region
@@ -141,14 +144,15 @@ export class InventoryService {
     totalPrice: number,
     quantity: number,
     baseUnit: string,
+    standardAmount?: number | null,
   ): number {
-    if (baseUnit === 'G' || baseUnit === 'ML') {
-      return (totalPrice / quantity) * 1000;
-    } else if (baseUnit === 'PCS') {
-      // Ціна за штуку
-      return totalPrice / quantity;
-    }
-    return totalPrice / quantity;
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : baseUnit === 'G' || baseUnit === 'ML'
+          ? 1000
+          : 1;
+    return (totalPrice / quantity) * baseAmount;
   }
 
   /**
@@ -158,13 +162,15 @@ export class InventoryService {
     pricePerUnit: number,
     quantity: number,
     unit: string,
+    standardAmount?: number | null,
   ): number {
-    if (unit === 'G' || unit === 'ML') {
-      return (quantity / 1000) * pricePerUnit;
-    } else if (unit === 'PCS') {
-      return quantity * pricePerUnit;
-    }
-    return quantity * pricePerUnit;
+    const baseAmount =
+      typeof standardAmount === 'number' && Number.isFinite(standardAmount) && standardAmount > 0
+        ? standardAmount
+        : unit === 'G' || unit === 'ML'
+          ? 1000
+          : 1;
+    return (quantity / baseAmount) * pricePerUnit;
   }
 
   private mapBudgetUpdate(
