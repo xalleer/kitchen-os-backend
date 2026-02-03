@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService, MealPlanParams } from '../ai/ai.service';
@@ -13,6 +14,8 @@ import { CookMealPlanDto } from './dto/meal-plan.dto';
 
 @Injectable()
 export class MealPlanService {
+  private readonly logger = new Logger(MealPlanService.name);
+
   constructor(
     private prisma: PrismaService,
     private aiService: AiService,
@@ -76,7 +79,17 @@ export class MealPlanService {
       allowedProducts,
     };
 
-    const aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+    let aiMealPlan: Awaited<ReturnType<AiService['generateMealPlan']>>;
+    try {
+      aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Meal plan AI generation failed: ${message}`);
+      throw new BadRequestException({
+        message: 'Failed to generate meal plan. AI response could not be processed.',
+        details: message,
+      });
+    }
 
     console.log('AI Meal Plan Response:', JSON.stringify(aiMealPlan, null, 2));
 
@@ -391,7 +404,23 @@ export class MealPlanService {
       daysCount: 1,
     };
 
-    const aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+    let aiMealPlan: Awaited<ReturnType<AiService['generateMealPlan']>>;
+    try {
+      aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Meal plan AI generation failed during regenerateMeal: ${message}`);
+      throw new BadRequestException({
+        message: 'Failed to regenerate meal. AI response could not be processed.',
+        details: message,
+      });
+    }
+
+    if (!aiMealPlan.days || !Array.isArray(aiMealPlan.days) || aiMealPlan.days.length === 0) {
+      this.logger.error('Invalid AI meal plan response during regenerateMeal');
+      throw new BadRequestException('Invalid AI response: days array is missing');
+    }
+
     const newMeal = aiMealPlan.days[0].meals.find((m) => m.type === mealPlan.type);
 
     if (!newMeal) {
