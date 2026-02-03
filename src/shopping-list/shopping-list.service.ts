@@ -187,15 +187,40 @@ export class ShoppingListService {
     });
 
     // 6. Зберігаємо новий список
+    const productsForPricing = await this.prisma.product.findMany({
+      where: {
+        id: {
+          in: shoppingItems.map((i) => i.productId),
+        },
+      },
+      select: {
+        id: true,
+        averagePrice: true,
+        baseUnit: true,
+        standardAmount: true,
+      },
+    });
+    const productsForPricingById = new Map(productsForPricing.map((p) => [p.id, p]));
+
     const savedItems: ShoppingListItemWithProduct[] = [];
     for (const item of shoppingItems) {
+      const pricingProduct = productsForPricingById.get(item.productId);
+      const estimatedPriceToSave = pricingProduct
+        ? this.estimatePrice(
+            pricingProduct.averagePrice ?? null,
+            item.needToBuy,
+            pricingProduct.baseUnit,
+            pricingProduct.standardAmount ?? null,
+          )
+        : item.estimatedPrice || 0;
+
       const saved = await this.prisma.shoppingListItem.create({
         data: {
           familyId,
           productId: item.productId,
           quantity: item.needToBuy,
           isBought: false,
-          estimatedPrice: item.estimatedPrice || 0,
+          estimatedPrice: estimatedPriceToSave,
           manualNote: null,
         },
         include: {
