@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    platform: linux/arm64
+    container_name: kitchen-os-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-kitchen}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - kitchen_os_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  api:
+    image: node:20-alpine
+    platform: linux/arm64
+    container_name: kitchen-os-api
+    working_dir: /app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kitchen}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret}
+      ENABLE_SCHEDULED_TASKS: ${ENABLE_SCHEDULED_TASKS:-false}
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npm ci && npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+
+volumes:
+  kitchen_os_pgdata:

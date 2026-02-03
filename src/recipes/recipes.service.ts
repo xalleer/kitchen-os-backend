@@ -20,6 +20,7 @@ export class RecipesService {
 
   async getSavedRecipes(familyId: string) {
     const recipes = await this.prisma.recipe.findMany({
+      where: { isSaved: true },
       include: {
         ingredients: {
           include: {
@@ -286,6 +287,7 @@ async generateRecipeFromInventory(familyId: string, portions: number = 2) {
       data: {
         name: dto.name,
         instructions: dto.instructions,
+        isSaved: true,
         ingredients: {
           create: dto.ingredients.map((ing) => ({
             productId: ing.productId,

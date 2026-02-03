@@ -271,6 +271,8 @@ model Recipe {
   name         String
   instructions String
 
+  isSaved Boolean @default(false)
+
   ingredients RecipeIngredient[]
   mealPlans   MealPlan[]
 }
