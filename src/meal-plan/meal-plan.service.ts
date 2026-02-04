@@ -136,7 +136,7 @@ export class MealPlanService {
       });
     }
 
-    const savedMealPlans: Awaited<ReturnType<typeof this.prisma.mealPlan.create>>[] = [];
+    const savedMealPlans: any [] = [];
     let estimatedCost = 0;
 
     for (const day of aiMealPlan.days) {
