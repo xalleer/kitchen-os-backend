@@ -57,6 +57,14 @@ export class MealPlanController {
     return this.mealPlanService.getMealPlan(familyId, startDate, endDate);
   }
 
+  @Get('current')
+  async getCurrentMeal(
+    @CurrentUser('familyId') familyId: string,
+    @CurrentUser('sub') userId: string,
+  ) {
+    return this.mealPlanService.getCurrentMeal(familyId, userId);
+  }
+
   /**
    * Отримати меню на конкретний день
    * GET /meal-plan/day/2024-01-10

@@ -266,6 +266,94 @@ export class MealPlanService {
     };
   }
 
+  async getCurrentMeal(familyId: string, userId: string) {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const userPref = await this.prisma.userPreference.findUnique({
+      where: { userId },
+      select: {
+        eatsBreakfast: true,
+        eatsLunch: true,
+        eatsDinner: true,
+        eatsSnack: true,
+        breakfastTime: true,
+        lunchTime: true,
+        dinnerTime: true,
+        snackTime: true,
+      },
+    });
+
+    const enabledTypes: MealType[] = [];
+    if (userPref?.eatsBreakfast ?? true) enabledTypes.push('BREAKFAST');
+    if (userPref?.eatsLunch ?? true) enabledTypes.push('LUNCH');
+    if (userPref?.eatsDinner ?? true) enabledTypes.push('DINNER');
+    if (userPref?.eatsSnack ?? false) enabledTypes.push('SNACK');
+
+    const mealPlans = await this.prisma.mealPlan.findMany({
+      where: {
+        familyId,
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        type: {
+          in: enabledTypes,
+        },
+      },
+      include: {
+        recipe: {
+          include: {
+            ingredients: {
+              include: {
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    baseUnit: true,
+                    caloriesPer100: true,
+                    image: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const byType = new Map<MealType, (typeof mealPlans)[number]>();
+    for (const mp of mealPlans) {
+      byType.set(mp.type, mp);
+    }
+
+    const ordered = enabledTypes
+      .map((t) => ({ type: t, at: this.getMealTimeForType(now, t, userPref) }))
+      .sort((a, b) => a.at.getTime() - b.at.getTime());
+
+    const firstCandidateIndex = ordered.findIndex((m) => now.getTime() <= m.at.getTime());
+    const startIndex = firstCandidateIndex === -1 ? Math.max(ordered.length - 1, 0) : firstCandidateIndex;
+
+    const orderedTypes = [
+      ...ordered.slice(startIndex).map((m) => m.type),
+      ...ordered.slice(0, startIndex).map((m) => m.type),
+    ];
+
+    const current = orderedTypes
+      .map((t) => byType.get(t))
+      .find((mp) => mp && !mp.isCooked && !mp.isSkipped);
+
+    return {
+      date: startOfDay.toISOString().split('T')[0],
+      now: now.toISOString(),
+      meal: current ?? null,
+      availableMealsCount: mealPlans.length,
+    };
+  }
+
   /**
    * Отримати меню на конкретний день
    */
@@ -712,6 +800,45 @@ export class MealPlanService {
       message: 'Meal skipped successfully',
       mealPlan: updated,
     };
+  }
+
+  private getMealTimeForType(
+    baseDate: Date,
+    type: MealType,
+    userPref: {
+      breakfastTime: string | null;
+      lunchTime: string | null;
+      dinnerTime: string | null;
+      snackTime: string | null;
+    } | null,
+  ): Date {
+    const fallback: Record<MealType, string> = {
+      BREAKFAST: '09:00',
+      LUNCH: '13:00',
+      DINNER: '20:00',
+      SNACK: '17:00',
+    };
+
+    const timeStr =
+      type === 'BREAKFAST'
+        ? userPref?.breakfastTime
+        : type === 'LUNCH'
+          ? userPref?.lunchTime
+          : type === 'DINNER'
+            ? userPref?.dinnerTime
+            : userPref?.snackTime;
+
+    const resolved = this.parseTimeToDate(baseDate, timeStr ?? fallback[type]);
+    return resolved;
+  }
+
+  private parseTimeToDate(baseDate: Date, time: string): Date {
+    const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec((time || '').trim());
+    const hours = m ? Number(m[1]) : 0;
+    const minutes = m ? Number(m[2]) : 0;
+    const d = new Date(baseDate);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
   }
 
   /**
