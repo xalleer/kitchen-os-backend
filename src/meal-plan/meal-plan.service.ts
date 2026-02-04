@@ -37,6 +37,13 @@ export class MealPlanService implements OnModuleInit {
     void this.processNextPendingJob();
   }
 
+  private getDefaultDaysCountUntilSunday(): number {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToSunday = day === 0 ? 0 : 7 - day;
+    return Math.max(1, diffToSunday + 1);
+  }
+
   async generateMealPlanAsync(familyId: string, userId: string, daysCount: number) {
     const normalizedDaysCount = Math.max(1, Math.min(7, Math.round(daysCount || 7)));
 
@@ -107,6 +114,10 @@ export class MealPlanService implements OnModuleInit {
     if (daysCount > 7) {
       daysCount = 7;
     }
+
+    const expectedDaysCount = specificDate
+      ? 1
+      : Math.min(daysCount, this.getDefaultDaysCountUntilSunday());
     const family = await this.prisma.family.findUnique({
       where: { id: familyId },
       include: {
@@ -166,9 +177,9 @@ export class MealPlanService implements OnModuleInit {
     try {
       aiMealPlan = await this.aiService.generateMealPlan(aiParams);
 
-      if (aiMealPlan?.days?.length && aiMealPlan.days.length < daysCount && !specificDate) {
+      if (aiMealPlan?.days?.length && aiMealPlan.days.length < expectedDaysCount && !specificDate) {
         this.logger.warn(
-          `AI returned only ${aiMealPlan.days.length}/${daysCount} days. Retrying generation once...`,
+          `AI returned only ${aiMealPlan.days.length}/${expectedDaysCount} days. Retrying generation once...`,
         );
         aiMealPlan = await this.aiService.generateMealPlan(aiParams);
       }
@@ -187,10 +198,10 @@ export class MealPlanService implements OnModuleInit {
       throw new BadRequestException('Invalid AI response: days array is missing');
     }
 
-    if (!specificDate && aiMealPlan.days.length < daysCount) {
+    if (!specificDate && aiMealPlan.days.length < expectedDaysCount) {
       throw new BadRequestException({
         message: 'AI returned incomplete meal plan',
-        expectedDays: daysCount,
+        expectedDays: expectedDaysCount,
         receivedDays: aiMealPlan.days.length,
       });
     }

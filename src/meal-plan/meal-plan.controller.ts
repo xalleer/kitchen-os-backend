@@ -25,6 +25,13 @@ import {
 export class MealPlanController {
   constructor(private readonly mealPlanService: MealPlanService) {}
 
+  private getDefaultDaysCountUntilSunday(): number {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToSunday = day === 0 ? 0 : 7 - day;
+    return Math.max(1, diffToSunday + 1);
+  }
+
   /**
    * Згенерувати план харчування на тиждень (або N днів)
    * POST /meal-plan/generate
@@ -37,7 +44,7 @@ export class MealPlanController {
     const daysCount =
       dto && typeof dto.daysCount === 'number' && Number.isFinite(dto.daysCount)
         ? dto.daysCount
-        : 7;
+        : this.getDefaultDaysCountUntilSunday();
 
     return this.mealPlanService.generateMealPlan(familyId, daysCount);
   }
@@ -52,7 +59,7 @@ export class MealPlanController {
     const daysCount =
       dto && typeof dto.daysCount === 'number' && Number.isFinite(dto.daysCount)
         ? dto.daysCount
-        : 7;
+        : this.getDefaultDaysCountUntilSunday();
 
     return this.mealPlanService.generateMealPlanAsync(familyId, userId, daysCount);
   }
