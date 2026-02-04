@@ -27,6 +27,13 @@ enum MealType {
   SNACK
 }
 
+enum MealPlanGenerationJobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -47,6 +54,8 @@ model User {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   UserPreference UserPreference?
+
+  mealPlanGenerationJobs MealPlanGenerationJob[]
 
   passwordResetCodeHash String?
   passwordResetExpires  DateTime?
@@ -93,6 +102,7 @@ model Family {
   // ⭐ НОВЕ: Тижневі плани та бюджети
   weeklyMealPlans WeeklyMealPlan[]
   weeklyBudgets   WeeklyBudget[]
+  mealPlanGenerationJobs MealPlanGenerationJob[]
   familyInvites   FamilyInvite[]
 
   createdAt DateTime @default(now())
@@ -305,6 +315,26 @@ model MealPlan {
   cookedAt   DateTime?
   isSkipped  Boolean   @default(false)
   skippedAt  DateTime?
+}
+
+model MealPlanGenerationJob {
+  id        String                     @id @default(uuid())
+  familyId  String
+  family    Family                     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  daysCount Int
+  status    MealPlanGenerationJobStatus @default(PENDING)
+
+  error     String?
+
+  createdAt DateTime                   @default(now())
+  startedAt DateTime?
+  finishedAt DateTime?
+
+  @@index([familyId, createdAt])
+  @@index([status, createdAt])
 }
 
 model ShoppingListItem {

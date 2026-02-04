@@ -41,6 +41,29 @@ export class MealPlanController {
 
     return this.mealPlanService.generateMealPlan(familyId, daysCount);
   }
+
+  @Post('generate-async')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async generateMealPlanAsync(
+    @CurrentUser('familyId') familyId: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto?: GenerateMealPlanDto,
+  ) {
+    const daysCount =
+      dto && typeof dto.daysCount === 'number' && Number.isFinite(dto.daysCount)
+        ? dto.daysCount
+        : 7;
+
+    return this.mealPlanService.generateMealPlanAsync(familyId, userId, daysCount);
+  }
+
+  @Get('generate-async/:jobId')
+  async getMealPlanGenerationJob(
+    @CurrentUser('familyId') familyId: string,
+    @Param('jobId') jobId: string,
+  ) {
+    return this.mealPlanService.getMealPlanGenerationJob(familyId, jobId);
+  }
   /**
    * Отримати поточний план харчування
    * GET /meal-plan

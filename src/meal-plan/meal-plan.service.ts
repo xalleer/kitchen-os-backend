@@ -5,6 +5,7 @@ import {
   ConflictException,
   Logger,
 } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService, MealPlanParams } from '../ai/ai.service';
 import { MealType, Unit } from '@prisma/client';
@@ -13,8 +14,9 @@ import { ShoppingListService } from '../shopping-list/shopping-list.service';
 import { CookMealPlanDto } from './dto/meal-plan.dto';
 
 @Injectable()
-export class MealPlanService {
+export class MealPlanService implements OnModuleInit {
   private readonly logger = new Logger(MealPlanService.name);
+  private pendingJobsPoller: NodeJS.Timeout | null = null;
 
   constructor(
     private prisma: PrismaService,
@@ -22,6 +24,84 @@ export class MealPlanService {
     private inventoryService: InventoryService,
     private shoppingListService: ShoppingListService,
   ) {}
+
+  onModuleInit() {
+    // Lightweight in-process worker: claims and processes pending jobs.
+    // This avoids losing jobs on process restart without requiring Redis/queues.
+    const pollMs = 5000;
+    this.pendingJobsPoller = setInterval(() => {
+      void this.processNextPendingJob();
+    }, pollMs);
+
+    // Kick once on startup
+    void this.processNextPendingJob();
+  }
+
+  async generateMealPlanAsync(familyId: string, userId: string, daysCount: number) {
+    const normalizedDaysCount = Math.max(1, Math.min(7, Math.round(daysCount || 7)));
+
+    const job = await this.prisma.mealPlanGenerationJob.create({
+      data: {
+        familyId,
+        userId,
+        daysCount: normalizedDaysCount,
+        status: 'PENDING',
+      },
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    setImmediate(() => {
+      void this.processMealPlanGenerationJob(job.id);
+    });
+
+    return {
+      jobId: job.id,
+      status: job.status,
+      createdAt: job.createdAt,
+    };
+  }
+
+  private async processNextPendingJob() {
+    const next = await this.prisma.mealPlanGenerationJob.findFirst({
+      where: { status: 'PENDING' },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+
+    if (!next) {
+      return;
+    }
+
+    await this.processMealPlanGenerationJob(next.id);
+  }
+
+  async getMealPlanGenerationJob(familyId: string, jobId: string) {
+    const job = await this.prisma.mealPlanGenerationJob.findFirst({
+      where: {
+        id: jobId,
+        familyId,
+      },
+      select: {
+        id: true,
+        status: true,
+        error: true,
+        daysCount: true,
+        createdAt: true,
+        startedAt: true,
+        finishedAt: true,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundException('Meal plan generation job not found');
+    }
+
+    return job;
+  }
 
   async generateMealPlan(familyId: string, daysCount: number = 5, specificDate?: Date) {
     if (daysCount > 7) {
@@ -210,6 +290,61 @@ export class MealPlanService {
       totalMeals: savedMealPlans.length,
       mealPlans: savedMealPlans,
     };
+  }
+
+  private async processMealPlanGenerationJob(jobId: string) {
+    const claimed = await this.prisma.mealPlanGenerationJob.updateMany({
+      where: {
+        id: jobId,
+        status: 'PENDING',
+      },
+      data: {
+        status: 'RUNNING',
+        startedAt: new Date(),
+      },
+    });
+
+    if (claimed.count === 0) {
+      return;
+    }
+
+    const job = await this.prisma.mealPlanGenerationJob.findUnique({
+      where: { id: jobId },
+      select: {
+        id: true,
+        familyId: true,
+        daysCount: true,
+      },
+    });
+
+    if (!job) {
+      return;
+    }
+
+    try {
+      await this.generateMealPlan(job.familyId, job.daysCount);
+
+      await this.prisma.mealPlanGenerationJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'DONE',
+          finishedAt: new Date(),
+          error: null,
+        },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Meal plan async job failed: ${message}`);
+
+      await this.prisma.mealPlanGenerationJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'FAILED',
+          finishedAt: new Date(),
+          error: message,
+        },
+      });
+    }
   }
 
   private estimatePrice(
