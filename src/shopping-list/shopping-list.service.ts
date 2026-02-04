@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Unit } from '@prisma/client';
+import { WeeklyBudgetService } from '../weekly-budget/weekly-budget.service';
 
 type BoughtShoppingListItem = {
   id: string;
@@ -68,7 +69,10 @@ export interface ShoppingListItemWithProduct {
 
 @Injectable()
 export class ShoppingListService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private weeklyBudgetService: WeeklyBudgetService,
+  ) {}
 
   /**
    * Згенерувати список покупок на основі meal plan
@@ -480,7 +484,35 @@ export class ShoppingListService {
       },
     });
 
+    const isTransitionToBought = !item.isBought && isBought;
+    const isTransitionToNotBought = item.isBought && !isBought;
+    const expenseAmount = this.getShoppingItemExpenseAmount(item, isBought, actualPrice);
+
+    if (expenseAmount > 0) {
+      if (isTransitionToBought) {
+        await this.weeklyBudgetService.addExpense(familyId, expenseAmount);
+      } else if (isTransitionToNotBought) {
+        await this.weeklyBudgetService.removeExpense(familyId, expenseAmount);
+      }
+    }
+
     return updated;
+  }
+
+  private getShoppingItemExpenseAmount(
+    item: { estimatedPrice?: number | null; actualPrice?: number | null },
+    isBought: boolean,
+    actualPrice?: number,
+  ): number {
+    if (!isBought) {
+      return Number(item.actualPrice ?? item.estimatedPrice ?? 0) || 0;
+    }
+
+    if (actualPrice !== undefined) {
+      return Number(actualPrice) || 0;
+    }
+
+    return Number(item.actualPrice ?? item.estimatedPrice ?? 0) || 0;
   }
 
   /**
