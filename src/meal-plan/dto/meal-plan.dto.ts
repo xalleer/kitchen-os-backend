@@ -36,4 +36,8 @@ export class CookMealPlanDto {
   @IsOptional()
   @IsBoolean()
   addToShoppingList?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  ignoreMissing?: boolean;
 }

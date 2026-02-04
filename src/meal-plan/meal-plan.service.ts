@@ -334,13 +334,18 @@ export class MealPlanService {
       .map((t) => ({ type: t, at: this.getMealTimeForType(now, t, userPref) }))
       .sort((a, b) => a.at.getTime() - b.at.getTime());
 
-    const firstCandidateIndex = ordered.findIndex((m) => now.getTime() <= m.at.getTime());
-    const startIndex = firstCandidateIndex === -1 ? Math.max(ordered.length - 1, 0) : firstCandidateIndex;
+    const lastStartedIndex = (() => {
+      let idx = -1;
+      for (let i = 0; i < ordered.length; i++) {
+        if (now.getTime() >= ordered[i].at.getTime()) {
+          idx = i;
+        }
+      }
+      return idx;
+    })();
 
-    const orderedTypes = [
-      ...ordered.slice(startIndex).map((m) => m.type),
-      ...ordered.slice(0, startIndex).map((m) => m.type),
-    ];
+    const startIndex = lastStartedIndex === -1 ? 0 : lastStartedIndex;
+    const orderedTypes = ordered.slice(startIndex).map((m) => m.type);
 
     const current = orderedTypes
       .map((t) => byType.get(t))
@@ -718,25 +723,37 @@ export class MealPlanService {
         }
       }
 
-      throw new ConflictException({
-        message: 'Not enough products in inventory',
-        missingItems,
-        addedToShoppingList: Boolean(dto?.addToShoppingList),
-      });
+      if (!dto?.ignoreMissing) {
+        throw new ConflictException({
+          message: 'Not enough products in inventory',
+          missingItems,
+          addedToShoppingList: Boolean(dto?.addToShoppingList),
+        });
+      }
     }
 
-    const toDeduct = [...requiredByProduct.values()].map((r) => ({
-      productId: r.productId,
-      quantity: r.quantity,
-    }));
+    const toDeduct = [...requiredByProduct.values()]
+      .map((r) => {
+        const inInventory = inventoryTotals.get(r.productId) || 0;
+        const quantity = dto?.ignoreMissing ? Math.max(0, Math.min(r.quantity, inInventory)) : r.quantity;
+        return {
+          productId: r.productId,
+          quantity,
+        };
+      })
+      .filter((r) => r.quantity > 0);
 
-    const deductResults = await this.inventoryService.deductProducts(familyId, toDeduct);
-    const failed = deductResults.filter((r) => !r.success);
-    if (failed.length > 0) {
-      throw new ConflictException({
-        message: 'Failed to deduct some products from inventory',
-        failed,
-      });
+    const deductResults =
+      toDeduct.length > 0 ? await this.inventoryService.deductProducts(familyId, toDeduct) : [];
+
+    if (!dto?.ignoreMissing) {
+      const failed = deductResults.filter((r) => !r.success);
+      if (failed.length > 0) {
+        throw new ConflictException({
+          message: 'Failed to deduct some products from inventory',
+          failed,
+        });
+      }
     }
 
     const updated = await this.prisma.mealPlan.update({
@@ -761,6 +778,7 @@ export class MealPlanService {
     return {
       message: 'Meal cooked successfully',
       deducted: deductResults,
+      missingItems: missingItems.length > 0 ? missingItems : undefined,
       mealPlan: updated,
     };
   }
