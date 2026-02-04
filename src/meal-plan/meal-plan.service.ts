@@ -85,6 +85,13 @@ export class MealPlanService {
     let aiMealPlan: Awaited<ReturnType<AiService['generateMealPlan']>>;
     try {
       aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+
+      if (aiMealPlan?.days?.length && aiMealPlan.days.length < daysCount && !specificDate) {
+        this.logger.warn(
+          `AI returned only ${aiMealPlan.days.length}/${daysCount} days. Retrying generation once...`,
+        );
+        aiMealPlan = await this.aiService.generateMealPlan(aiParams);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Meal plan AI generation failed: ${message}`);
@@ -98,6 +105,14 @@ export class MealPlanService {
 
     if (!aiMealPlan.days || !Array.isArray(aiMealPlan.days)) {
       throw new BadRequestException('Invalid AI response: days array is missing');
+    }
+
+    if (!specificDate && aiMealPlan.days.length < daysCount) {
+      throw new BadRequestException({
+        message: 'AI returned incomplete meal plan',
+        expectedDays: daysCount,
+        receivedDays: aiMealPlan.days.length,
+      });
     }
 
     if (specificDate) {

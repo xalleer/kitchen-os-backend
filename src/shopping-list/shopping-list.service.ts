@@ -169,7 +169,7 @@ export class ShoppingListService {
 
         const packagingAmount =
           typeof req.standardAmount === 'number' && Number.isFinite(req.standardAmount) && req.standardAmount > 0
-            ? req.standardAmount
+            ? Math.ceil(needToBuy / req.standardAmount) * req.standardAmount
             : this.calculateStandardAmount(needToBuy, req.baseUnit);
         req.needToBuy = packagingAmount;
 
