@@ -20,27 +20,43 @@ export class WeeklyBudgetService {
       },
     });
 
+    const family = await this.prisma.family.findUnique({
+      where: { id: familyId },
+      select: { budgetLimit: true },
+    });
+
+    if (!family) {
+      throw new NotFoundException('Family not found');
+    }
+
+    const desiredTotalBudget = Number(family.budgetLimit || 0);
+
     if (!weeklyBudget) {
-      // Отримуємо ліміт бюджету сім'ї
-      const family = await this.prisma.family.findUnique({
-        where: { id: familyId },
-        select: { budgetLimit: true },
-      });
-
-      if (!family) {
-        throw new NotFoundException('Family not found');
-      }
-
       weeklyBudget = await this.prisma.weeklyBudget.create({
         data: {
           familyId,
           weekStartDate,
           weekEndDate,
-          totalBudget: family.budgetLimit || 0,
+          totalBudget: desiredTotalBudget,
           spent: 0,
-          remaining: family.budgetLimit || 0,
+          remaining: desiredTotalBudget,
         },
       });
+    } else {
+      const currentTotalBudget = Number(weeklyBudget.totalBudget);
+      const currentSpent = Number(weeklyBudget.spent);
+      const desiredRemaining = desiredTotalBudget - currentSpent;
+      const currentRemaining = Number(weeklyBudget.remaining);
+
+      if (currentTotalBudget !== desiredTotalBudget || currentRemaining !== desiredRemaining) {
+        weeklyBudget = await this.prisma.weeklyBudget.update({
+          where: { id: weeklyBudget.id },
+          data: {
+            totalBudget: desiredTotalBudget,
+            remaining: desiredRemaining,
+          },
+        });
+      }
     }
 
     return weeklyBudget;
